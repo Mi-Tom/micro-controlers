@@ -1,0 +1,2 @@
+Náš tým se jmenuje "VyvojovyDiagram". Proto jsem se rozhodl pro použití značek užívaných ve vývojových diagramech. Jelikož plánujeme jako náš projekt dělat dron, vymyslel jsem logo vrtule.
+Logo má průhledné pozadí a je určeno pro světlou stránku. Dále mohu jednoduše upravovat. (přidávat pozadí, měnit barvy pro účel umístnění na tmavé pozadí, odebrat text VD atd...)
