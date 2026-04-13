@@ -7,3 +7,4 @@
 - seznámení s programem Fusion 360
 - instalace a seznámení s programy pro programování mikrokontrolerů
 - Gaba má Zadig na svém počítači
+- seznámení s konfigurací pinů,... na STM32
