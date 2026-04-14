@@ -1,0 +1,7 @@
+/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles/terminal-output.dir
+/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles/edit_cache.dir
+/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles/rebuild_cache.dir
+/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
+/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir
+/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir

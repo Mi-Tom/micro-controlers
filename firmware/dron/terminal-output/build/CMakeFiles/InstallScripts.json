@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake_install.cmake",
+		"/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
