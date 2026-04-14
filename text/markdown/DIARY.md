@@ -8,3 +8,9 @@
 - instalace a seznámení s programy pro programování mikrokontrolerů
 - Gaba má Zadig na svém počítači
 - seznámení s konfigurací pinů,... na STM32
+
+## 14. března 2026
+- přehrán firmware mikrokontroleru (nalezen původní)
+- zjištěna závada mikrokontroleru - nefunguje gyroskop (ale funguje barometr)
+- začátek práce na 3D modelech
+- začátek návrhu schéma motion controleru (Kouzelné tyčky)

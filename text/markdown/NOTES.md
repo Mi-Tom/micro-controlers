@@ -4,6 +4,7 @@
 - Hlavní řídící mikrokontroler dronu
     - **FlyWarp F405 V5 STACK**
         - Hlavní řídící čip
+        - Firmware: FLYWOOF405, verze 4.5.3
             - **STEM32F405RGT6**     
         - Gyroskop
             - **ICM42688**
@@ -12,5 +13,3 @@
 
 ---
 ## Co je potřeba udělat (pokud se nudíš)
-- najít původní firmware **FlyWarp F405 V5 STACK**u
--
