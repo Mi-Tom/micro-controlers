@@ -156,10 +156,24 @@ CMakeFiles/terminal-output.dir/Core/Src/gpio.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/terminal-output.dir/Core/Src/gpio.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/gpio.c -o CMakeFiles/terminal-output.dir/Core/Src/gpio.c.s
 
+CMakeFiles/terminal-output.dir/Core/Src/usart.c.o: CMakeFiles/terminal-output.dir/flags.make
+CMakeFiles/terminal-output.dir/Core/Src/usart.c.o: /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/usart.c
+CMakeFiles/terminal-output.dir/Core/Src/usart.c.o: CMakeFiles/terminal-output.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/terminal-output.dir/Core/Src/usart.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/terminal-output.dir/Core/Src/usart.c.o -MF CMakeFiles/terminal-output.dir/Core/Src/usart.c.o.d -o CMakeFiles/terminal-output.dir/Core/Src/usart.c.o -c /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/usart.c
+
+CMakeFiles/terminal-output.dir/Core/Src/usart.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/terminal-output.dir/Core/Src/usart.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/usart.c > CMakeFiles/terminal-output.dir/Core/Src/usart.c.i
+
+CMakeFiles/terminal-output.dir/Core/Src/usart.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/terminal-output.dir/Core/Src/usart.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/usart.c -o CMakeFiles/terminal-output.dir/Core/Src/usart.c.s
+
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o: CMakeFiles/terminal-output.dir/flags.make
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o: /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/stm32f4xx_it.c
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o: CMakeFiles/terminal-output.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o -MF CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o.d -o CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o -c /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/stm32f4xx_it.c
 
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.i: cmake_force
@@ -173,7 +187,7 @@ CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.s: cmake_force
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o: CMakeFiles/terminal-output.dir/flags.make
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o: /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/stm32f4xx_hal_msp.c
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o: CMakeFiles/terminal-output.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o -MF CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o.d -o CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o -c /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/stm32f4xx_hal_msp.c
 
 CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.i: cmake_force
@@ -187,7 +201,7 @@ CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.s: cmake_force
 CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o: CMakeFiles/terminal-output.dir/flags.make
 CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o: /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/sysmem.c
 CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o: CMakeFiles/terminal-output.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o -MF CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o.d -o CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o -c /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/sysmem.c
 
 CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.i: cmake_force
@@ -201,7 +215,7 @@ CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.s: cmake_force
 CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o: CMakeFiles/terminal-output.dir/flags.make
 CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o: /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/syscalls.c
 CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o: CMakeFiles/terminal-output.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o -MF CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o.d -o CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o -c /home/michal/projects/micro-controlers/firmware/dron/terminal-output/Core/Src/syscalls.c
 
 CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.i: cmake_force
@@ -214,7 +228,7 @@ CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.s: cmake_force
 
 CMakeFiles/terminal-output.dir/startup_stm32f405xx.s.o: CMakeFiles/terminal-output.dir/flags.make
 CMakeFiles/terminal-output.dir/startup_stm32f405xx.s.o: /home/michal/projects/micro-controlers/firmware/dron/terminal-output/startup_stm32f405xx.s
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building ASM object CMakeFiles/terminal-output.dir/startup_stm32f405xx.s.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building ASM object CMakeFiles/terminal-output.dir/startup_stm32f405xx.s.o"
 	/usr/bin/cc $(ASM_DEFINES) $(ASM_INCLUDES) $(ASM_FLAGS) -o CMakeFiles/terminal-output.dir/startup_stm32f405xx.s.o -c /home/michal/projects/micro-controlers/firmware/dron/terminal-output/startup_stm32f405xx.s
 
 CMakeFiles/terminal-output.dir/startup_stm32f405xx.s.i: cmake_force
@@ -233,6 +247,7 @@ terminal__output_OBJECTS = \
 "CMakeFiles/terminal-output.dir/USB_DEVICE/App/usbd_cdc_if.c.o" \
 "CMakeFiles/terminal-output.dir/Core/Src/main.c.o" \
 "CMakeFiles/terminal-output.dir/Core/Src/gpio.c.o" \
+"CMakeFiles/terminal-output.dir/Core/Src/usart.c.o" \
 "CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o" \
 "CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o" \
 "CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o" \
@@ -258,6 +273,7 @@ terminal__output_EXTERNAL_OBJECTS = \
 "/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.o" \
 "/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.o" \
 "/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c.o" \
+"/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.o" \
 "/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/__/__/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c.o" \
 "/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/__/__/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c.o" \
 "/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/__/__/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c.o" \
@@ -269,6 +285,7 @@ terminal-output: CMakeFiles/terminal-output.dir/USB_DEVICE/App/usbd_desc.c.o
 terminal-output: CMakeFiles/terminal-output.dir/USB_DEVICE/App/usbd_cdc_if.c.o
 terminal-output: CMakeFiles/terminal-output.dir/Core/Src/main.c.o
 terminal-output: CMakeFiles/terminal-output.dir/Core/Src/gpio.c.o
+terminal-output: CMakeFiles/terminal-output.dir/Core/Src/usart.c.o
 terminal-output: CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_it.c.o
 terminal-output: CMakeFiles/terminal-output.dir/Core/Src/stm32f4xx_hal_msp.c.o
 terminal-output: CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o
@@ -291,6 +308,7 @@ terminal-output: cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/ST
 terminal-output: cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c.o
 terminal-output: cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c.o
 terminal-output: cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c.o
+terminal-output: cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.o
 terminal-output: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/__/__/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c.o
 terminal-output: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/__/__/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c.o
 terminal-output: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/__/__/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c.o
@@ -298,7 +316,7 @@ terminal-output: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/__/__/Middl
 terminal-output: CMakeFiles/terminal-output.dir/build.make
 terminal-output: CMakeFiles/terminal-output.dir/compiler_depend.ts
 terminal-output: CMakeFiles/terminal-output.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking C executable terminal-output"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking C executable terminal-output"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/terminal-output.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

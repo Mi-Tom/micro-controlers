@@ -528,6 +528,30 @@ __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c.s:
 	cd /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build && $(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build.make cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c.s
 .PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c.s
 
+__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.o: __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.o
+.PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.o
+
+# target to build an object file
+__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.o:
+	cd /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build && $(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build.make cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.o
+.PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.o
+
+__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.i: __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.i
+.PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.i
+
+# target to preprocess a source file
+__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.i:
+	cd /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build && $(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build.make cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.i
+.PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.i
+
+__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.s: __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.s
+.PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.s
+
+# target to generate assembly for a file
+__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.s:
+	cd /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build && $(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build.make cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.s
+.PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c.s
+
 __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.o: __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c.o
 .PHONY : __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.o
 
@@ -706,6 +730,9 @@ help:
 	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.o"
 	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.i"
 	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.s"
+	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.o"
+	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.i"
+	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.s"
 	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.o"
 	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.i"
 	@echo "... __/__/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.s"

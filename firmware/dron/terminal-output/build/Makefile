@@ -299,6 +299,30 @@ Core/Src/sysmem.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/terminal-output.dir/build.make CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.s
 .PHONY : Core/Src/sysmem.c.s
 
+Core/Src/usart.o: Core/Src/usart.c.o
+.PHONY : Core/Src/usart.o
+
+# target to build an object file
+Core/Src/usart.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/terminal-output.dir/build.make CMakeFiles/terminal-output.dir/Core/Src/usart.c.o
+.PHONY : Core/Src/usart.c.o
+
+Core/Src/usart.i: Core/Src/usart.c.i
+.PHONY : Core/Src/usart.i
+
+# target to preprocess a source file
+Core/Src/usart.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/terminal-output.dir/build.make CMakeFiles/terminal-output.dir/Core/Src/usart.c.i
+.PHONY : Core/Src/usart.c.i
+
+Core/Src/usart.s: Core/Src/usart.c.s
+.PHONY : Core/Src/usart.s
+
+# target to generate assembly for a file
+Core/Src/usart.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/terminal-output.dir/build.make CMakeFiles/terminal-output.dir/Core/Src/usart.c.s
+.PHONY : Core/Src/usart.c.s
+
 USB_DEVICE/App/usb_device.o: USB_DEVICE/App/usb_device.c.o
 .PHONY : USB_DEVICE/App/usb_device.o
 
@@ -432,6 +456,9 @@ help:
 	@echo "... Core/Src/sysmem.o"
 	@echo "... Core/Src/sysmem.i"
 	@echo "... Core/Src/sysmem.s"
+	@echo "... Core/Src/usart.o"
+	@echo "... Core/Src/usart.i"
+	@echo "... Core/Src/usart.s"
 	@echo "... USB_DEVICE/App/usb_device.o"
 	@echo "... USB_DEVICE/App/usb_device.i"
 	@echo "... USB_DEVICE/App/usb_device.s"

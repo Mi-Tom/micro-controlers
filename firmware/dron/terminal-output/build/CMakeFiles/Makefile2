@@ -107,16 +107,16 @@ cmake/stm32cubemx/clean: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/cle
 # Target rules for target CMakeFiles/terminal-output.dir
 
 # All Build rule for target.
-CMakeFiles/terminal-output.dir/all: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/all
 CMakeFiles/terminal-output.dir/all: cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/all
+CMakeFiles/terminal-output.dir/all: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/terminal-output.dir/build.make CMakeFiles/terminal-output.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/terminal-output.dir/build.make CMakeFiles/terminal-output.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=22,23,24,25,26,27,28,29,30,31,32,33 "Built target terminal-output"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=23,24,25,26,27,28,29,30,31,32,33,34,35 "Built target terminal-output"
 .PHONY : CMakeFiles/terminal-output.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/terminal-output.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles 33
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles 35
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/terminal-output.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles 0
 .PHONY : CMakeFiles/terminal-output.dir/rule
@@ -128,7 +128,7 @@ terminal-output: CMakeFiles/terminal-output.dir/rule
 # codegen rule for target.
 CMakeFiles/terminal-output.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/terminal-output.dir/build.make CMakeFiles/terminal-output.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=22,23,24,25,26,27,28,29,30,31,32,33 "Finished codegen for target terminal-output"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=23,24,25,26,27,28,29,30,31,32,33,34,35 "Finished codegen for target terminal-output"
 .PHONY : CMakeFiles/terminal-output.dir/codegen
 
 # clean rule for target.
@@ -143,12 +143,12 @@ CMakeFiles/terminal-output.dir/clean:
 cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/all:
 	$(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build.make cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/depend
 	$(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build.make cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 "Built target STM32_Drivers"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 "Built target STM32_Drivers"
 .PHONY : cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/all
 
 # Build rule for subdir invocation for target.
 cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles 17
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles 18
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles 0
 .PHONY : cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/rule
@@ -160,7 +160,7 @@ STM32_Drivers: cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/rule
 # codegen rule for target.
 cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/build.make cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 "Finished codegen for target STM32_Drivers"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 "Finished codegen for target STM32_Drivers"
 .PHONY : cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/codegen
 
 # clean rule for target.
@@ -175,7 +175,7 @@ cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/clean:
 cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/all:
 	$(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/build.make cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/depend
 	$(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/build.make cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=18,19,20,21 "Built target USB_Device_Library"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=19,20,21,22 "Built target USB_Device_Library"
 .PHONY : cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/all
 
 # Build rule for subdir invocation for target.
@@ -192,7 +192,7 @@ USB_Device_Library: cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/rule
 # codegen rule for target.
 cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/build.make cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=18,19,20,21 "Finished codegen for target USB_Device_Library"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michal/projects/micro-controlers/firmware/dron/terminal-output/build/CMakeFiles --progress-num=19,20,21,22 "Finished codegen for target USB_Device_Library"
 .PHONY : cmake/stm32cubemx/CMakeFiles/USB_Device_Library.dir/codegen
 
 # clean rule for target.

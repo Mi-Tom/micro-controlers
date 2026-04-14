@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/terminal-output.dir/Core/Src/syscalls.c.o.d"
   "CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o"
   "CMakeFiles/terminal-output.dir/Core/Src/sysmem.c.o.d"
+  "CMakeFiles/terminal-output.dir/Core/Src/usart.c.o"
+  "CMakeFiles/terminal-output.dir/Core/Src/usart.c.o.d"
   "CMakeFiles/terminal-output.dir/USB_DEVICE/App/usb_device.c.o"
   "CMakeFiles/terminal-output.dir/USB_DEVICE/App/usb_device.c.o.d"
   "CMakeFiles/terminal-output.dir/USB_DEVICE/App/usbd_cdc_if.c.o"
