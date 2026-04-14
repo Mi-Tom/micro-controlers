@@ -13,4 +13,6 @@
 - přehrán firmware mikrokontroleru (nalezen původní)
 - zjištěna závada mikrokontroleru - nefunguje gyroskop (ale funguje barometr)
 - začátek práce na 3D modelech
-- začátek návrhu schéma motion controleru (Kouzelné tyčky)
+- začátek návrhu schéma motion controlleru (Kouzelné tyčky)
+- zjištěny díly, které jsou potřeba k motion controlleru
+- návrh umístění kamery do dronu
