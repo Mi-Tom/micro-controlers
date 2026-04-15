@@ -24,7 +24,7 @@
 ---
 
 ### Honza
-- Návrh dronu (postupně)
+- Návrh dronu (postupně) -- Rozpracovano ve stredu, je navrzeno telo
 ---
 
 ## Rozměry některých součástek:

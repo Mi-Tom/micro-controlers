@@ -16,3 +16,7 @@
 - začátek návrhu schéma motion controlleru (Kouzelné tyčky)
 - zjištěny díly, které jsou potřeba k motion controlleru
 - návrh umístění kamery do dronu
+
+## 15. března 2026
+- začátek návrhu dronu 
+- navržena základní kostra dronu
