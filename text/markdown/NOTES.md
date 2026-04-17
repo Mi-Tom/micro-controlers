@@ -14,7 +14,34 @@
 - Gyroskop + Akcelerometr
 		- **MPU6500**
 				- POZOR, NENÍ TO 6050!!!
+				- Vzorec pro Kalmanův filtr (Hodnoty budou přesné a stabilní --> dron bude ve vzduchu stabilně létat)
+---
+		- Výpočet úhlu z akcelerometru:
+				roll_acc  = atan2(ay, az) * 180 / π
+				pitch_acc = atan2(-ax, sqrt(ay² + az²)) * 180 / π
+		
+		- Integrace gyroskopu:
+				roll_acc  = atan2(ay, az) * 180 / π
+				pitch_acc = atan2(-ax, sqrt(ay² + az²)) * 180 / π
+			
+		- Complementary filter (hlavní vzorec):
+				roll  = α * (roll  + gx * dt) + (1 - α) * roll_acc
+				pitch = α * (pitch + gy * dt) + (1 - α) * pitch_acc
 
+		- Co znamenají symboly:
+				α = 0.95 až 0.99   (váha gyra)
+				dt = čas v sekundách mezi měřeními
+
+				gx, gy = gyro rychlost (°/s)
+				ax, ay, az = akcelerace
+
+		- Chyba pro PID regulátor (pro dron):
+				error_roll  = target_roll  - roll
+				error_pitch = target_pitch - pitch
+
+		- Kalman:
+				angle = angle + dt * (gyro - bias)
+				angle = angle + K * (acc_angle - angle)
 ---
 
 ## Kdo co dělá:

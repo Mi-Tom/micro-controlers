@@ -31,3 +31,5 @@
 - Zjištěno, že senzor je 6500 a ne 6050
 - otestován první program - teď to funguje
 - 1. ÚSPĚCH - Dostali jsme první data z gyroskopu a akcelerometru
+- Zjištěno, jak funguje Kalmanův filtr - připsány hodnoty do NOTES.md
+- Zapsány ukázkové vzorce
