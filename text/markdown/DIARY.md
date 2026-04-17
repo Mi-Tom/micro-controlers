@@ -23,6 +23,11 @@
 - návrh držáku na kameru pro dron
 
 ## 16. března 2026
-- otestován senzor MPU6050
+- otestován senzor MPU6500
 - začátek prací na softwaru pro motion controller
 - ladicí práce na držáku na kameru pro dron
+
+## 17. března 2026
+- Zjištěno, že senzor je 6500 a ne 6050
+- otestován první program - teď to funguje
+- 1. ÚSPĚCH - Dostali jsme první data z gyroskopu a akcelerometru

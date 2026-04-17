@@ -11,6 +11,10 @@
 - ESC
     -  **BLS 65A**
 
+- Gyroskop + Akcelerometr
+		- **MPU6500**
+				- POZOR, NENÍ TO 6050!!!
+
 ---
 
 ## Kdo co dělá:
