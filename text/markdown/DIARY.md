@@ -33,3 +33,4 @@
 - 1. ÚSPĚCH - Dostali jsme první data z gyroskopu a akcelerometru
 - Zjištěno, jak funguje Kalmanův filtr - připsány hodnoty do NOTES.md
 - Zapsány ukázkové vzorce
+- Zprovoznen provizorni kod pro Kalmanuv filtr
