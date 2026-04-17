@@ -1,20 +1,37 @@
-#include <Wire.h>
 #include "I2Cdev.h"
 #include "MPU6050.h"
+#include "Wire.h"
 
-MPU6050 mpu;
+MPU6050 accelgyro;
+
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
 
 void setup() {
-  Serial.begin(115200);
-  Wire.begin(21, 22);
+    Wire.begin(21, 22); // Inicializace I2C na pinech ESP32
+    Serial.begin(115200);
 
-  mpu.initialize();
+    Serial.println("Inicializace I2C zarizeni...");
+    accelgyro.initialize();
 
-  if (mpu.testConnection()) {
-    Serial.println("OK");
-  } else {
-    Serial.println("FAIL");
-  }
+    // Overeni spojeni
+    Serial.println("Testovani pripojeni...");
+    Serial.println(accelgyro.testConnection() ? "MPU6500 pripojen uspesne" : "MPU6500 pripojeni selhalo");
 }
 
-void loop() {}
+void loop() {
+    // Cteni syrovych dat
+    accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+    // Vypis do monitoru
+    Serial.print("A:");
+    Serial.print(ax); Serial.print("\t");
+    Serial.print(ay); Serial.print("\t");
+    Serial.print(az); Serial.print("\t | ");
+    Serial.print("G:");
+    Serial.print(gx); Serial.print("\t");
+    Serial.print(gy); Serial.print("\t");
+    Serial.println(gz);
+
+    delay(100);
+}
