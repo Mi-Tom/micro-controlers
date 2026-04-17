@@ -1,6 +1,7 @@
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Wire.h"
+#define RADTODEG 57.2958
 
 MPU6050 accelgyro;
 
@@ -24,14 +25,22 @@ void loop() {
     accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
     // Vypis do monitoru
-    Serial.print("A:");
+    /*Serial.print("A:");
     Serial.print(ax); Serial.print("\t");
     Serial.print(ay); Serial.print("\t");
     Serial.print(az); Serial.print("\t | ");
     Serial.print("G:");
     Serial.print(gx); Serial.print("\t");
     Serial.print(gy); Serial.print("\t");
-    Serial.println(gz);
+    Serial.println(gz);*/
+
+    float accAngleX = atan2(ay, az) * RADTODEG;
+    float accAngleY = atan2(-ax, sqrt(ay*ay + az*az)) * RADTODEG;
+    Serial.print("Osa X:\t");
+    Serial.println(accAngleX);
+    Serial.print("Osa Y:\t"); 
+    Serial.println(accAngleY);
+    Serial.println("---------------");
 
     delay(100);
 }

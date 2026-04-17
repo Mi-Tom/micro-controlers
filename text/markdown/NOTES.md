@@ -14,6 +14,8 @@
 - Gyroskop + Akcelerometr
 		- **MPU6500**
 				- POZOR, NENÍ TO 6050!!!
+				- Jak jsou položeny osy:
+						- Namalováno na Modulu
 				- Vzorec pro Kalmanův filtr (Hodnoty budou přesné a stabilní --> dron bude ve vzduchu stabilně létat)
 ---
 		- Výpočet úhlu z akcelerometru:
