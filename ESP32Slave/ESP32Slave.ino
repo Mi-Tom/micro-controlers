@@ -2,10 +2,10 @@
 #include <WiFi.h>
 
 typedef struct struct_message {
-    char character[100];
-    int integer;
-    float floating_value;
-    bool bool_value;
+  float roll;
+  float pitch;
+  float yaw;
+  float throttle;
 } struct_message;
 
 
@@ -15,17 +15,18 @@ void data_receive(const esp_now_recv_info *info, const uint8_t *data, int len) {
   memcpy(&message, data, sizeof(message));
 
   Serial.println("Data received:");
-  Serial.print("Text: ");
-  Serial.println(message.character);
+  Serial.print("Roll: ");
+  Serial.println(message.roll);
 
-  Serial.print("Int: ");
-  Serial.println(message.integer);
+  Serial.print("Pitch: ");
+  Serial.println(message.pitch);
 
-  Serial.print("Float: ");
-  Serial.println(message.floating_value);
+  Serial.print("Yaw: ");
+  Serial.println(message.yaw);
 
-  Serial.print("Bool: ");
-  Serial.println(message.bool_value);
+  Serial.print("Throttle: ");
+  Serial.println(message.throttle);
+  Serial.println("----------------");
 }
  
 void setup() {
