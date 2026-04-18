@@ -15,6 +15,7 @@ float angleX = 0;
 float angleY = 0;
 float yaw_input_prev = 0.0;
 static float yaw_angle = 0;
+int p = 0;
 
 void setup() {
     Wire.begin(21, 22); // Inicializace I2C na pinech ESP32
@@ -95,13 +96,18 @@ void loop() {
     pitch_input = constrain(pitch_input, -1.0, 1.0);
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
-    Serial.print("Roll:\t");
-    Serial.println(roll_input);
-    Serial.print("Pitch:\t"); 
-    Serial.println(pitch_input);
-    Serial.print("Yaw:\t");
-    Serial.println(yaw_input);
-    Serial.println("---------------");
+    p++;
+    if(p == 10)
+    {
+        Serial.print("Roll:\t");
+        Serial.println(roll_input);
+        Serial.print("Pitch:\t"); 
+        Serial.println(pitch_input);
+        Serial.print("Yaw:\t");
+        Serial.println(yaw_input);
+        Serial.println("---------------");
+        p = 0;
+    }
 
     delay(5);
 }
