@@ -264,14 +264,14 @@ void loop() {
       Serial.print("Spinkám, jsem vystresovaný!!!!");
       int emergency_time = 10000; // Doba nouzového čekání po zmáčknutí emergency tlačítka
       unsigned long enter_time = millis();
-      bool leave = false;
-      while(leave)
+      bool cont = true;
+      while(cont)
       {
         ESPNOW_send(0, 0, 0, 0);
         now = millis();
-        if(enter_time - now >= emergency_time)
+        if(now - enter_time >= emergency_time)
         {
-          leave = true;
+          cont = false;
         }
       } 
     }
