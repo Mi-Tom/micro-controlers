@@ -1,14 +1,17 @@
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Wire.h"
+#include <esp_now.h>
+#include <WiFi.h>
+
 #define RADTODEG 57.2958
 #define MAXTILT 35.0
 #define MAXYAWANGLE 60.0
 #define BUTTON_DELAY 50
 
-#define POTPIN 33       // Pin pro potenciomentr
-#define PIN_BAT 32      // Pin pro dělič baterie
-#define PIN_REF 35      // Pin pro LM285 (2.5V)
+#define POTPIN 33   // Pin pro potenciomentr
+#define PIN_BAT 32  // Pin pro dělič baterie
+#define PIN_REF 35  // Pin pro LM285 (2.5V)
 
 //---- Gyroskop ----
 MPU6050 accelgyro;
@@ -40,6 +43,18 @@ struct Button {
 
 Button batBtn = { 27, 0, HIGH, 0 };
 
+//---- ESP NOW komunikace ----
+uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };
+
+typedef struct struct_message {
+  char character[100];
+  int integer;
+  float floating_value;
+  bool bool_value;
+} struct_message;
+
+struct_message message;
+
 // =====================TESTOVANI_NAPETI_BATERIE=====================
 
 void checkBattery() {
@@ -48,7 +63,7 @@ void checkBattery() {
 
   float voltage = (float(batRaw) / refRaw) * 2.5 * VOLT_RATIO;
   int percent = constrain((voltage - 3.2) * 100, 0, 100);
-  
+
   int ledsToLight = map(percent, 0, 100, 0, ledCount);
   ledsToLight = constrain(ledsToLight, 1, ledCount);
 
@@ -74,130 +89,165 @@ void turnOffLeds() {
   }
 }
 
+// ==============================ESP NOW=============================
+
+void data_sent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
+  Serial.print("Send Status: ");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
+}
+
 // ==============================SETUP===============================
 
 void setup() {
-    // Akcelerometr a Gyroskop
-    Wire.begin(21, 22); // Inicializace I2C na pinech ESP32
-    Serial.begin(115200);
+  // Akcelerometr a Gyroskop
+  Wire.begin(21, 22);  // Inicializace I2C na pinech ESP32
+  Serial.begin(115200);
 
-    Serial.println("Inicializace I2C zarizeni...");
-    accelgyro.initialize();
+  Serial.println("Inicializace I2C zarizeni...");
+  accelgyro.initialize();
 
-    Serial.println("Testovani pripojeni...");
-    Serial.println(accelgyro.testConnection() ? "MPU6500 pripojen uspesne" : "MPU6500 pripojeni selhalo");
+  Serial.println("Testovani pripojeni...");
+  Serial.println(accelgyro.testConnection() ? "MPU6500 pripojen uspesne" : "MPU6500 pripojeni selhalo");
 
-    lastTime = micros();
+  lastTime = micros();
 
-    // Potenciometr
-    analogReadResolution(12); // 0–4095
-    analogSetAttenuation(ADC_11db); // rozsah cca 0–3.3V
+  // Potenciometr
+  analogReadResolution(12);        // 0–4095
+  analogSetAttenuation(ADC_11db);  // rozsah cca 0–3.3V
 
-    // Baterka
-    for (int i = 0; i < ledCount; i++) {
-        pinMode(ledPins[i], OUTPUT);
-    }
-    pinMode(batBtn.pin, INPUT_PULLUP);
+  // Baterka
+  for (int i = 0; i < ledCount; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+  pinMode(batBtn.pin, INPUT_PULLUP);
+
+  // ESP NOW
+  WiFi.mode(WIFI_STA);
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+
+  esp_now_register_send_cb(data_sent);
+
+  esp_now_peer_info_t peerInfo = {};
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
+  if (esp_now_add_peer(&peerInfo) != ESP_OK) {
+    Serial.println("Failed to add peer");
+    return;
+  }
 }
 
 // ===============================LOOP===============================
 
 void loop() {
-    // Akcelerometr a Gyroskop
-    accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  // Akcelerometr a Gyroskop
+  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
-    unsigned long currentTime = micros();
-    float dt = (currentTime - lastTime) / 1000000.0;
+  unsigned long currentTime = micros();
+  float dt = (currentTime - lastTime) / 1000000.0;
 
-    if(dt > 0.05)
-    {
-        dt = 0.01;
+  if (dt > 0.05) {
+    dt = 0.01;
+  }
+
+  lastTime = currentTime;
+
+  float accAngleX = atan2(ay, az) * RADTODEG;
+  float accAngleY = atan2(-ax, sqrt(ay * ay + az * az)) * RADTODEG;
+
+  float gx_dps = gx / 131.0;
+  float gy_dps = gy / 131.0;
+
+  float alpha = 0.98;
+
+  angleX = alpha * (angleX + gx_dps * dt) + (1 - alpha) * accAngleX;
+  angleY = alpha * (angleY + gy_dps * dt) + (1 - alpha) * accAngleY;
+
+  float roll_input = angleX / MAXTILT;
+  float pitch_input = angleY / MAXTILT;
+  float yaw_rate = gz / 131.0;
+
+  if (abs(yaw_rate) < 1.0) {
+    yaw_rate = 0;
+  }
+
+  yaw_angle += yaw_rate * dt;
+  yaw_angle *= 0.995;
+
+  float yaw_input = yaw_angle / MAXYAWANGLE;
+
+  yaw_input = 0.9 * yaw_input_prev + 0.1 * yaw_input;
+  yaw_input_prev = yaw_input;
+
+  if (abs(roll_input) < 0.05) {
+    roll_input = 0;
+  }
+
+  if (abs(pitch_input) < 0.05) {
+    pitch_input = 0;
+  }
+
+  roll_input = constrain(roll_input, -1.0, 1.0);
+  pitch_input = constrain(pitch_input, -1.0, 1.0);
+  yaw_input = constrain(yaw_input, -1.0, 1.0);
+
+  // Pontenciometr
+  int pot_value = analogRead(POTPIN);
+  float throttle = pot_value / 4095.0;
+
+  // Vypis
+  p++;
+  if (p == 10) {
+    Serial.print("Roll:\t");
+    Serial.println(roll_input);
+    Serial.print("Pitch:\t");
+    Serial.println(pitch_input);
+    Serial.print("Yaw:\t");
+    Serial.println(yaw_input);
+    Serial.print("Raw Pontentiometer:\t");
+    Serial.println(pot_value);
+    Serial.print("Throttle:\t");
+    Serial.println(throttle);
+    Serial.println("---------------");
+    p = 0;
+  }
+
+  // Baterka
+  unsigned long now = millis();
+  bool currentState = digitalRead(batBtn.pin);
+
+  if (batBtn.lastState == HIGH && currentState == LOW) {
+    if (now - batBtn.lastPush > BUTTON_DELAY) {
+      batBtn.lastPush = now;
+      checkBattery();
+      batBtn.offTime = now + 2000;  // Po jak dlouhou dobu bude indikace baterie svítit
     }
+  }
+  batBtn.lastState = currentState;
 
-    lastTime = currentTime;
+  // Automatické vypnutí LED vázané na toto tlačítko
+  if (batBtn.offTime > 0 && now >= batBtn.offTime) {
+    turnOffLeds();
+    batBtn.offTime = 0;
+  }
 
-    float accAngleX = atan2(ay, az) * RADTODEG;
-    float accAngleY = atan2(-ax, sqrt(ay*ay + az*az)) * RADTODEG;
+  // ESP NOW
+  strcpy(message.character, "Test probehl uspesne.");
+  message.integer = random(1,10);
+  message.floating_value = 5.6;
+  message.bool_value = true;
+  
+  esp_err_t outcome = esp_now_send(broadcastAddress, (uint8_t *) &message, sizeof(message));
+   
+  if (outcome == ESP_OK) {
+    Serial.println("Message sent successfully!");
+  }
+  else {
+    Serial.println("Error sending the message");
+  }
 
-    float gx_dps = gx / 131.0;
-    float gy_dps = gy / 131.0;
-
-    float alpha = 0.98;
-
-    angleX = alpha * (angleX + gx_dps * dt) + (1 - alpha) * accAngleX;
-    angleY = alpha * (angleY + gy_dps * dt) + (1 - alpha) * accAngleY;
-
-    float roll_input = angleX / MAXTILT;
-    float pitch_input = angleY / MAXTILT;  
-    float yaw_rate = gz / 131.0;
-
-    if(abs(yaw_rate) < 1.0)
-    {
-        yaw_rate = 0;
-    }
-
-    yaw_angle += yaw_rate * dt;
-    yaw_angle *= 0.995;
-
-    float yaw_input = yaw_angle / MAXYAWANGLE;
-
-    yaw_input = 0.9 * yaw_input_prev + 0.1 * yaw_input;
-    yaw_input_prev = yaw_input;
-
-    if(abs(roll_input) < 0.05)
-    {
-        roll_input = 0;
-    }
-
-    if(abs(pitch_input) < 0.05)
-    {
-        pitch_input = 0;
-    }
-
-    roll_input = constrain(roll_input, -1.0, 1.0);
-    pitch_input = constrain(pitch_input, -1.0, 1.0);
-    yaw_input = constrain(yaw_input, -1.0, 1.0);
-
-    // Pontenciometr
-    int pot_value = analogRead(POTPIN);
-    float throttle = pot_value / 4095.0;
-
-    // Vypis
-    p++;
-    if(p == 10)
-    {
-        Serial.print("Roll:\t");
-        Serial.println(roll_input);
-        Serial.print("Pitch:\t"); 
-        Serial.println(pitch_input);
-        Serial.print("Yaw:\t");
-        Serial.println(yaw_input);
-        Serial.print("Raw Pontentiometer:\t");
-        Serial.println(pot_value);
-        Serial.print("Throttle:\t");
-        Serial.println(throttle);
-        Serial.println("---------------");
-        p = 0;
-    }
-
-    // Baterka
-    unsigned long now = millis();
-    bool currentState = digitalRead(batBtn.pin);
-
-    if (batBtn.lastState == HIGH && currentState == LOW) {
-        if (now - batBtn.lastPush > BUTTON_DELAY) {
-        batBtn.lastPush = now;
-        checkBattery();
-        batBtn.offTime = now + 2000; // Po jak dlouhou dobu bude indikace baterie svítit
-        }
-    }
-    batBtn.lastState = currentState;
-
-    // Automatické vypnutí LED vázané na toto tlačítko
-    if (batBtn.offTime > 0 && now >= batBtn.offTime) {
-        turnOffLeds();
-        batBtn.offTime = 0;
-    }
-
-    delay(5);
+  delay(5);
 }

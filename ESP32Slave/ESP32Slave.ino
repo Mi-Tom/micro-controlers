@@ -12,20 +12,20 @@ typedef struct struct_message {
 struct_message message;
 
 void data_receive(const esp_now_recv_info *info, const uint8_t *data, int len) {
-  Serial.print("Data received: ");
-  
-  for (int i = 0; i < len; i++) {
-    Serial.print((char)data[i]);
-  }
-  Serial.println();
+  memcpy(&message, data, sizeof(message));
 
-  // Pokud chceš MAC adresu odesílatele:
-  if (info != NULL) {
-    const uint8_t *mac = info->src_addr;
-    Serial.printf("From: ec:62:60:94:da:74\n",
-                  mac[0], mac[1], mac[2],
-                  mac[3], mac[4], mac[5]);
-  }
+  Serial.println("Data received:");
+  Serial.print("Text: ");
+  Serial.println(message.character);
+
+  Serial.print("Int: ");
+  Serial.println(message.integer);
+
+  Serial.print("Float: ");
+  Serial.println(message.floating_value);
+
+  Serial.print("Bool: ");
+  Serial.println(message.bool_value);
 }
  
 void setup() {
