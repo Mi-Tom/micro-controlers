@@ -42,6 +42,7 @@ struct Button {
 };
 
 Button batBtn = { 27, 0, HIGH, 0 };
+Button emeBtn = { 26, 0, HIGH, 0 };
 
 //---- ESP NOW komunikace ----
 uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };  //MAC adresa
@@ -120,6 +121,9 @@ void setup() {
     pinMode(ledPins[i], OUTPUT);
   }
   pinMode(batBtn.pin, INPUT_PULLUP);
+
+  // emergency button
+  pinMode(emeBtn.pin, INPUT_PULLUP);
 
   // ESP NOW
   WiFi.mode(WIFI_STA);
@@ -232,6 +236,20 @@ void loop() {
   if (batBtn.offTime > 0 && now >= batBtn.offTime) {
     turnOffLeds();
     batBtn.offTime = 0;
+  }
+
+  // emergency tlačítko
+  now = millis();
+  currentState = digitalRead(emeBtn.pin);
+
+
+  if (emeBtn.lastState == HIGH && currentState == LOW) {
+    if (now - emeBtn.lastPush > BUTTON_DELAY) {
+      emeBtn.lastPush = now;
+      //ESPNOW_send(0, 0, 0, 0);
+      Serial.print("Spinkám, jsem vystresovaný!!!!");
+      delay(10000); // Doba nouzového čekání po zmáčknutí emergency tlačítka
+    }
   }
 
   // ESP NOW
