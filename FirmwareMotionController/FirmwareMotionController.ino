@@ -2,6 +2,8 @@
 #include "MPU6050.h"
 #include "Wire.h"
 #define RADTODEG 57.2958
+#define MAXTILT 35.0
+#define MAXYAWANGLE 60.0
 
 MPU6050 accelgyro;
 
@@ -11,6 +13,8 @@ unsigned long lastTime;
 
 float angleX = 0;
 float angleY = 0;
+float yaw_input_prev = 0.0;
+static float yaw_angle = 0;
 
 void setup() {
     Wire.begin(21, 22); // Inicializace I2C na pinech ESP32
@@ -41,6 +45,12 @@ void loop() {
     Serial.println(gz);*/
     unsigned long currentTime = micros();
     float dt = (currentTime - lastTime) / 1000000.0;
+
+    if(dt > 0.05)
+    {
+        dt = 0.01;
+    }
+
     lastTime = currentTime;
 
     float accAngleX = atan2(ay, az) * RADTODEG;
@@ -53,6 +63,37 @@ void loop() {
 
     angleX = alpha * (angleX + gx_dps * dt) + (1 - alpha) * accAngleX;
     angleY = alpha * (angleY + gy_dps * dt) + (1 - alpha) * accAngleY;
+
+    float roll_input = angleX / MAXTILT;
+    float pitch_input = angleY / MAXTILT;  
+    float yaw_rate = gz / 131.0;
+
+    if(abs(yaw_rate) < 1.0)
+    {
+        yaw_rate = 0;
+    }
+
+    yaw_angle += yaw_rate * dt;
+    yaw_angle *= 0.995;
+
+    float yaw_input = yaw_angle / MAXYAWANGLE;
+
+    yaw_input = 0.9 * yaw_input_prev + 0.1 * yaw_input;
+    yaw_input_prev = yaw_input;
+
+    if(abs(roll_input) < 0.05)
+    {
+        roll_input = 0;
+    }
+
+    if(abs(pitch_input) < 0.05)
+    {
+        pitch_input = 0;
+    }
+
+    roll_input = constrain(roll_input, -1.0, 1.0);
+    pitch_input = constrain(pitch_input, -1.0, 1.0);
+    yaw_input = constrain(yaw_input, -1.0, 1.0);
 
     Serial.print("Osa X:\t");
     Serial.println(angleX);

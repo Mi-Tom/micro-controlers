@@ -1,5 +1,12 @@
 # POZNÁMKY
 ---
+
+## Motion Controller Firmware (co dodělat)
+- přidat tlačítko na kalibraci ovladače (přes funkci accelgyro)
+- příklad kalibračního kódu:
+		- accelgyro.CalibrateAccel(6);
+		- accelgyro.CalibrateGyro(6);
+
 ## Součástky
 - Hlavní řídící mikrokontroler dronu
     - **FlyWarp F405 V5 STACK**
@@ -45,22 +52,6 @@
 				angle = angle + dt * (gyro - bias)
 				angle = angle + K * (acc_angle - angle)
 ---
-
-## Kdo co dělá:
----
-### Gabriel
-- Návrh obalu na kameru (k dronu) - začátek v úterý
----
-
-### Dominik
-- Návrh kouzelné tyčky (včetně softwaru)
----
-
-### Honza
-- Návrh dronu (postupně) -- Rozpracovano ve stredu, je navrzeno telo
----
-
-## Rozměry některých součástek:
 ### MCU
 - 36,42 mm x 36,49 mm (36,5 mm)
 ---
