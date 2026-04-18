@@ -36,4 +36,10 @@
 - Zprovoznen provizorni kod pro komplementarni filtr
 
 ## 18. března 2026
-- 
+- Zdokonaleno nacitani dat z gyroskopu a akcelerometru
+- Pridana funkce pro potenciometr, ktery ovlada rychlost dronu (zatim bez zpetneho chodu a omezeni)
+- Pridan obvod referencniho napeti, zjisteno napeti a stav nabiti baterie
+- Pridano tlacitko a LED pro zobrazeni stavu nabiti baterie
+- Pridana komunikace ESP NOW --> nyni se posilaji finalni data z motion controlleru do ESP (2)
+- Rozpracovan stojan na mobil, vysilac (3D model)
+- Rozmontovan prijimac kamera --> Navrhnuta nova, lepsi krabicka 
