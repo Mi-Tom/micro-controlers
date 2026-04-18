@@ -261,9 +261,19 @@ void loop() {
   if (emeBtn.lastState == HIGH && currentState == LOW) {
     if (now - emeBtn.lastPush > BUTTON_DELAY) {
       emeBtn.lastPush = now;
-      ESPNOW_send(0, 0, 0, 0);
       Serial.print("Spinkám, jsem vystresovaný!!!!");
-      delay(10000); // Doba nouzového čekání po zmáčknutí emergency tlačítka
+      int emergency_time = 10000; // Doba nouzového čekání po zmáčknutí emergency tlačítka
+      unsigned long enter_time = millis();
+      bool leave = false;
+      while(leave)
+      {
+        ESPNOW_send(0, 0, 0, 0);
+        now = millis();
+        if(enter_time - now >= emergency_time)
+        {
+          leave = true;
+        }
+      } 
     }
   }
 
