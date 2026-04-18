@@ -95,10 +95,12 @@ void loop() {
     pitch_input = constrain(pitch_input, -1.0, 1.0);
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
-    Serial.print("Osa X:\t");
-    Serial.println(angleX);
-    Serial.print("Osa Y:\t"); 
-    Serial.println(angleY);
+    Serial.print("Roll:\t");
+    Serial.println(roll_input);
+    Serial.print("Pitch:\t"); 
+    Serial.println(pitch_input);
+    Serial.print("Yaw:\t");
+    Serial.println(yaw_input);
     Serial.println("---------------");
 
     delay(5);
