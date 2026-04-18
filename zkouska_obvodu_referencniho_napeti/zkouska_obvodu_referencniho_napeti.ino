@@ -1,52 +1,85 @@
-const int pinBat = 32;      // Pin pro dělič baterie
-const int pinRef = 35;      // Pin pro LM285 (2.5V)
+#define PIN_BAT 32      // Pin pro dělič baterie
+#define PIN_REF 35      // Pin pro LM285 (2.5V)
 const float R1 = 100000.0;  //100K
 const float R2 = 100000.0;
-const float ratio = (R1 + R2) / R2;
-int led_pins[] = { 4, 16, 2, 0, 15 };
-int led_count = 5;
+const float VOLT_RATIO = (R1 + R2) / R2;
 
-void setup() {
-  Serial.begin(115200);
-  for (int i = 0; i < led_count; i++) {
-    pinMode(led_pins[i], OUTPUT);
-  }
-}
+int ledPins[] = { 4, 16, 2, 0, 15 };
+int ledCount = 5;
 
-void loop() {
-  // Průměrování pro stabilitu
-  int ref = 0;
-  int bat = 0;
+struct Button {
+  int pin;
+  unsigned long lastPush;
+  bool lastState;
+  unsigned long offTime;
+};
 
-  ref = analogRead(pinRef);
-  bat = analogRead(pinBat);
+Button batBtn = { 27, 0, HIGH, 0 };
 
-  float rawBat = (bat * 2.5) / ref;
-  float vBattery = rawBat * ratio;
+#define BUTTON_DELAY 50
 
-  float percent = (vBattery - 3.2) / (4.2 - 3.2) * 100.0;
-  percent = constrain(percent, 0, 100);
+// =====================TESTOVANI_NAPETI_BATERIE=====================
+void checkBattery() {
+  int refRaw = analogRead(PIN_REF);
+  int batRaw = analogRead(PIN_BAT);
 
-  int led_on = map(vBattery * 100, 320, 400, 1, led_count);
-  led_on = constrain(led_on, 1, led_count);
+  float voltage = (float(batRaw) / refRaw) * 2.5 * VOLT_RATIO;
+  int percent = constrain((voltage - 3.2) * 100, 0, 100);
+  
+  int ledsToLight = map(percent, 0, 100, 0, ledCount);
+  ledsToLight = constrain(ledsToLight, 1, ledCount);
 
-  for (int i = 0; i < led_on; i++) {
-    digitalWrite(led_pins[i], HIGH);
+  for (int i = 0; i < ledsToLight; i++) {
+    digitalWrite(ledPins[i], HIGH);
   }
 
   Serial.print("Napeti: ");
-  Serial.print(vBattery);
+  Serial.print(voltage);
   Serial.println(" V");
   Serial.print("Nabiti: ");
   Serial.print(percent);
   Serial.println(" %");
   Serial.print("Ledky: ");
-  Serial.print(led_on);
+  Serial.print(ledsToLight);
   Serial.println(" LED");
+}
 
-  delay(100);
 
-  for (int i = 0; i < led_count; i++) {
-    digitalWrite(led_pins[i], LOW);
+void turnOffLeds() {
+  for (int i = 0; i < ledCount; i++) {
+    digitalWrite(ledPins[i], LOW);
   }
 }
+
+
+// ==============================SETUP===============================
+void setup() {
+  Serial.begin(115200);
+  for (int i = 0; i < ledCount; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+  pinMode(batBtn.pin, INPUT_PULLUP);
+}
+
+// ===============================LOOP===============================
+void loop() {
+  unsigned long now = millis();
+  bool currentState = digitalRead(batBtn.pin);
+
+  if (batBtn.lastState == HIGH && currentState == LOW) {
+    if (now - batBtn.lastPush > BUTTON_DELAY) {
+      batBtn.lastPush = now;
+      checkBattery();
+      batBtn.offTime = now + 2000; // Po jak dlouhou dobu bude indikace baterie svítit
+    }
+  }
+  batBtn.lastState = currentState;
+
+  // Automatické vypnutí LED vázané na toto tlačítko
+  if (batBtn.offTime > 0 && now >= batBtn.offTime) {
+    turnOffLeds();
+    batBtn.offTime = 0;
+  }
+}
+
+
