@@ -92,6 +92,21 @@ void turnOffLeds() {
 
 // ==============================ESP NOW=============================
 
+void ESPNOW_send(float roll_input, float pitch_input, float yaw_input, float throttle_input) {
+  message.roll = roll_input;
+  message.pitch = pitch_input;
+  message.yaw = yaw_input;
+  message.throttle = throttle_input;
+
+  esp_err_t outcome = esp_now_send(broadcastAddress, (uint8_t *)&message, sizeof(message));
+
+  if (outcome == ESP_OK) {
+    Serial.println("Message sent successfully!");
+  } else {
+    Serial.println("Error sending the message");
+  }
+}
+
 void data_sent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
   Serial.print("Send Status: ");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
@@ -246,26 +261,14 @@ void loop() {
   if (emeBtn.lastState == HIGH && currentState == LOW) {
     if (now - emeBtn.lastPush > BUTTON_DELAY) {
       emeBtn.lastPush = now;
-      //ESPNOW_send(0, 0, 0, 0);
+      ESPNOW_send(0, 0, 0, 0);
       Serial.print("Spinkám, jsem vystresovaný!!!!");
       delay(10000); // Doba nouzového čekání po zmáčknutí emergency tlačítka
     }
   }
 
   // ESP NOW
-  message.roll = roll_input;
-  message.pitch = pitch_input;
-  message.yaw = yaw_input;
-  message.throttle = throttle_input;
-  
-  esp_err_t outcome = esp_now_send(broadcastAddress, (uint8_t *) &message, sizeof(message));
-   
-  if (outcome == ESP_OK) {
-    Serial.println("Message sent successfully!");
-  }
-  else {
-    Serial.println("Error sending the message");
-  }
+  ESPNOW_send(roll_input, pitch_input, yaw_input, throttle_input);
 
   delay(5);
 }
