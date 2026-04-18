@@ -44,13 +44,13 @@ struct Button {
 Button batBtn = { 27, 0, HIGH, 0 };
 
 //---- ESP NOW komunikace ----
-uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };
+uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };  //MAC adresa
 
 typedef struct struct_message {
-  char character[100];
-  int integer;
-  float floating_value;
-  bool bool_value;
+  float roll;
+  float pitch;
+  float yaw;
+  float throttle;
 } struct_message;
 
 struct_message message;
@@ -196,7 +196,7 @@ void loop() {
 
   // Pontenciometr
   int pot_value = analogRead(POTPIN);
-  float throttle = pot_value / 4095.0;
+  float throttle_input = pot_value / 4095.0;
 
   // Vypis
   p++;
@@ -210,7 +210,7 @@ void loop() {
     Serial.print("Raw Pontentiometer:\t");
     Serial.println(pot_value);
     Serial.print("Throttle:\t");
-    Serial.println(throttle);
+    Serial.println(throttle_input);
     Serial.println("---------------");
     p = 0;
   }
@@ -228,17 +228,17 @@ void loop() {
   }
   batBtn.lastState = currentState;
 
-  // Automatické vypnutí LED vázané na toto tlačítko
+  // Automatické vypnutí LED vázané na tlačítko LED
   if (batBtn.offTime > 0 && now >= batBtn.offTime) {
     turnOffLeds();
     batBtn.offTime = 0;
   }
 
   // ESP NOW
-  strcpy(message.character, "Test probehl uspesne.");
-  message.integer = random(1,10);
-  message.floating_value = 5.6;
-  message.bool_value = true;
+  message.roll = roll_input;
+  message.pitch = pitch_input;
+  message.yaw = yaw_input;
+  message.throttle = throttle_input;
   
   esp_err_t outcome = esp_now_send(broadcastAddress, (uint8_t *) &message, sizeof(message));
    
