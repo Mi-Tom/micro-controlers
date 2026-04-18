@@ -4,6 +4,7 @@
 #define RADTODEG 57.2958
 #define MAXTILT 35.0
 #define MAXYAWANGLE 60.0
+#define POTPIN 34
 
 MPU6050 accelgyro;
 
@@ -18,32 +19,27 @@ static float yaw_angle = 0;
 int p = 0;
 
 void setup() {
+    // Akcelerometr a Gyroskop
     Wire.begin(21, 22); // Inicializace I2C na pinech ESP32
     Serial.begin(115200);
 
     Serial.println("Inicializace I2C zarizeni...");
     accelgyro.initialize();
 
-    // Overeni spojeni
     Serial.println("Testovani pripojeni...");
     Serial.println(accelgyro.testConnection() ? "MPU6500 pripojen uspesne" : "MPU6500 pripojeni selhalo");
 
     lastTime = micros();
+
+    // Potenciometr
+    analogReadResolution(12); // 0–4095
+    analogSetAttenuation(ADC_11db); // rozsah cca 0–3.3V
 }
 
 void loop() {
-    // Cteni syrovych dat
+    // Akcelerometr a Gyroskop
     accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
-    // Vypis do monitoru
-    /*Serial.print("A:");
-    Serial.print(ax); Serial.print("\t");
-    Serial.print(ay); Serial.print("\t");
-    Serial.print(az); Serial.print("\t | ");
-    Serial.print("G:");
-    Serial.print(gx); Serial.print("\t");
-    Serial.print(gy); Serial.print("\t");
-    Serial.println(gz);*/
     unsigned long currentTime = micros();
     float dt = (currentTime - lastTime) / 1000000.0;
 
@@ -96,6 +92,11 @@ void loop() {
     pitch_input = constrain(pitch_input, -1.0, 1.0);
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
+    // Pontenciometr
+    int pot_value = analogRead(POTPIN);
+    float throttle = pot_value / 4095.0;
+
+    // Vypis
     p++;
     if(p == 10)
     {
@@ -105,6 +106,10 @@ void loop() {
         Serial.println(pitch_input);
         Serial.print("Yaw:\t");
         Serial.println(yaw_input);
+        Serial.print("Raw Pontentiometer:\t");
+        Serial.println(pot_value);
+        Serial.print("Throttle:\t");
+        Serial.println(throttle);
         Serial.println("---------------");
         p = 0;
     }
