@@ -262,16 +262,20 @@ void loop() {
     if (now - emeBtn.lastPush > BUTTON_DELAY) {
       emeBtn.lastPush = now;
       Serial.print("Spinkám, jsem vystresovaný!!!!");
-      int emergency_time = 10000; // Doba nouzového čekání po zmáčknutí emergency tlačítka
-      unsigned long enter_time = millis();
+      // int emergency_time = 10000; // Doba nouzového čekání po zmáčknutí emergency tlačítka
+      // unsigned long enter_time = millis();
       bool cont = true;
       while(cont)
       {
         ESPNOW_send(0, 0, 0, 0);
         now = millis();
-        if(now - enter_time >= emergency_time)
-        {
-          cont = false;
+        currentState = digitalRead(emeBtn.pin);
+        if (emeBtn.lastState == HIGH && currentState == LOW){
+          if(now - emeBtn.lastPush > BUTTON_DELAY){
+            emeBtn.lastPush = now;
+            Serial.println("Vystupuji ze smyčky, jsem odstresovaný!!!!");
+            cont = false;
+          }
         }
       } 
     }
