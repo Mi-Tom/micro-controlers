@@ -42,4 +42,13 @@
 - Pridano tlacitko a LED pro zobrazeni stavu nabiti baterie
 - Pridana komunikace ESP NOW --> nyni se posilaji finalni data z motion controlleru do ESP (2)
 - Rozpracovan stojan na mobil, vysilac (3D model)
-- Rozmontovan prijimac kamera --> Navrhnuta nova, lepsi krabicka 
+- Rozmontovan prijimac kamera --> Navrhnuta nova, lepsi krabicka
+
+## 22. března 2026
+- Přeflashnut firmware STM32 - FUNGUJE!!
+- Funkční gyroskop, akcelerometr na STM32
+
+## 23. března 2026
+- Zjištěny parametry STM32 v Betaflight configuratoru
+- Začátek řešení komunikace mezi přijímačem a vysílačem
+- Začátek zjišťování parametrů vysílače 
