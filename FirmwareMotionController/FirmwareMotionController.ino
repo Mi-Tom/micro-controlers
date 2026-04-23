@@ -24,9 +24,8 @@ float angleX = 0;
 float angleY = 0;
 float yaw_input_prev = 0.0;
 static float yaw_angle = 0;
-int p = 0;
 
-//---- Button Baterka ----
+//---- Baterka ----
 const float R1 = 100000.0;  //100K
 const float R2 = 100000.0;
 const float VOLT_RATIO = (R1 + R2) / R2;
@@ -34,6 +33,7 @@ const float VOLT_RATIO = (R1 + R2) / R2;
 int ledPins[] = { 4, 16, 2, 0, 15 };
 int ledCount = 5;
 
+//---- Tlacitka ----
 struct Button {
   int pin;
   unsigned long lastPush;
@@ -43,6 +43,9 @@ struct Button {
 
 Button batBtn = { 27, 0, HIGH, 0 };
 Button emeBtn = { 26, 0, HIGH, 0 };
+
+//---- Emergency mod ----
+bool isEmergency = false;
 
 //---- ESP NOW komunikace ----
 uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };  //MAC adresa
@@ -55,6 +58,9 @@ typedef struct struct_message {
 } struct_message;
 
 struct_message message;
+
+// ---- Pomocne pro vypis ----
+int p = 0;
 
 // =====================TESTOVANI_NAPETI_BATERIE=====================
 
@@ -100,16 +106,36 @@ void ESPNOW_send(float roll_input, float pitch_input, float yaw_input, float thr
 
   esp_err_t outcome = esp_now_send(broadcastAddress, (uint8_t *)&message, sizeof(message));
 
-  if (outcome == ESP_OK) {
+  // OTRAVNY VYPIS K ESP-NOW
+  /*if (outcome == ESP_OK) {
     Serial.println("Message sent successfully!");
   } else {
     Serial.println("Error sending the message");
-  }
+  }*/
 }
 
 void data_sent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
-  Serial.print("Send Status: ");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
+  /*Serial.print("Send Status: ");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");*/
+}
+
+// ========================POMOCNY_VYPIS_UDAJU=======================
+void printout_data(float roll_input, float pitch_input, float yaw_input, float throttle_input) {
+  p++;
+  if (p == 10) {
+    Serial.print("Roll:\t");
+    Serial.println(roll_input);
+    Serial.print("Pitch:\t");
+    Serial.println(pitch_input);
+    Serial.print("Yaw:\t");
+    Serial.println(yaw_input);
+    //Serial.print("Raw Pontentiometer:\t"); //když tak přidat do formalnich parametru fce
+    //Serial.println(pot_value);
+    Serial.print("Throttle:\t");
+    Serial.println(throttle_input);
+    Serial.println("---------------");
+    p = 0;
+  }
 }
 
 // ==============================SETUP===============================
@@ -162,127 +188,112 @@ void setup() {
 // ===============================LOOP===============================
 
 void loop() {
-  // Akcelerometr a Gyroskop
-  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  // ---- emergency tlačítko ----
+  unsigned long now = millis();
+  bool emeCurrentState = digitalRead(emeBtn.pin);
 
+  if (emeBtn.lastState == HIGH && emeCurrentState == LOW) {
+    if (now - emeBtn.lastPush > BUTTON_DELAY) {
+      emeBtn.lastPush = now;
+      isEmergency = !isEmergency;
+      p = 0;
+
+      if (isEmergency) {
+        Serial.print("Spinkám, jsem vystresovaný!!!!");
+      } else {
+        Serial.println("Jsem odstresovaný!!!!");
+      }
+    }
+  }
+  emeBtn.lastState = emeCurrentState;
+
+  // ---- Akcelerometr a Gyroskop ----
+  // casovy vypocet pro akcelerometr a gyroskop
   unsigned long currentTime = micros();
   float dt = (currentTime - lastTime) / 1000000.0;
-
+  lastTime = currentTime;
   if (dt > 0.05) {
     dt = 0.01;
   }
 
-  lastTime = currentTime;
+  if (!isEmergency) {
+    accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
-  float accAngleX = atan2(ay, az) * RADTODEG;
-  float accAngleY = atan2(-ax, sqrt(ay * ay + az * az)) * RADTODEG;
+    float accAngleX = atan2(ay, az) * RADTODEG;
+    float accAngleY = atan2(-ax, sqrt(ay * ay + az * az)) * RADTODEG;
 
-  float gx_dps = gx / 131.0;
-  float gy_dps = gy / 131.0;
+    float gx_dps = gx / 131.0;
+    float gy_dps = gy / 131.0;
 
-  float alpha = 0.98;
+    float alpha = 0.98;
 
-  angleX = alpha * (angleX + gx_dps * dt) + (1 - alpha) * accAngleX;
-  angleY = alpha * (angleY + gy_dps * dt) + (1 - alpha) * accAngleY;
+    angleX = alpha * (angleX + gx_dps * dt) + (1 - alpha) * accAngleX;
+    angleY = alpha * (angleY + gy_dps * dt) + (1 - alpha) * accAngleY;
 
-  float roll_input = angleX / MAXTILT;
-  float pitch_input = angleY / MAXTILT;
-  float yaw_rate = gz / 131.0;
+    float roll_input = angleX / MAXTILT;
+    float pitch_input = angleY / MAXTILT;
+    float yaw_rate = gz / 131.0;
 
-  if (abs(yaw_rate) < 1.0) {
-    yaw_rate = 0;
-  }
+    if (abs(yaw_rate) < 1.0) {
+      yaw_rate = 0;
+    }
 
-  yaw_angle += yaw_rate * dt;
-  yaw_angle *= 0.995;
+    yaw_angle += yaw_rate * dt;
+    yaw_angle *= 0.995;
 
-  float yaw_input = yaw_angle / MAXYAWANGLE;
+    float yaw_input = yaw_angle / MAXYAWANGLE;
 
-  yaw_input = 0.9 * yaw_input_prev + 0.1 * yaw_input;
-  yaw_input_prev = yaw_input;
+    yaw_input = 0.9 * yaw_input_prev + 0.1 * yaw_input;
+    yaw_input_prev = yaw_input;
 
-  if (abs(roll_input) < 0.05) {
-    roll_input = 0;
-  }
+    if (abs(roll_input) < 0.05) {
+      roll_input = 0;
+    }
 
-  if (abs(pitch_input) < 0.05) {
-    pitch_input = 0;
-  }
+    if (abs(pitch_input) < 0.05) {
+      pitch_input = 0;
+    }
 
-  roll_input = constrain(roll_input, -1.0, 1.0);
-  pitch_input = constrain(pitch_input, -1.0, 1.0);
-  yaw_input = constrain(yaw_input, -1.0, 1.0);
+    roll_input = constrain(roll_input, -1.0, 1.0);
+    pitch_input = constrain(pitch_input, -1.0, 1.0);
+    yaw_input = constrain(yaw_input, -1.0, 1.0);
 
-  // Pontenciometr
-  int pot_value = analogRead(POTPIN);
-  float throttle_input = pot_value / 4095.0;
+    // Pontenciometr
+    int pot_value = analogRead(POTPIN);
+    float throttle_input = pot_value / 4095.0;
 
-  // Vypis
-  p++;
-  if (p == 10) {
-    Serial.print("Roll:\t");
-    Serial.println(roll_input);
-    Serial.print("Pitch:\t");
-    Serial.println(pitch_input);
-    Serial.print("Yaw:\t");
-    Serial.println(yaw_input);
-    Serial.print("Raw Pontentiometer:\t");
-    Serial.println(pot_value);
-    Serial.print("Throttle:\t");
-    Serial.println(throttle_input);
-    Serial.println("---------------");
-    p = 0;
+    // Vypis
+    printout_data(roll_input, pitch_input, yaw_input, throttle_input);
+
+    // ESP-NOW
+    ESPNOW_send(roll_input, pitch_input, yaw_input, throttle_input);
+
+  } else {
+    // Vypis
+    printout_data(0, 0, 0, 0);
+
+    // ESP-NOW
+    ESPNOW_send(0, 0, 0, 0);
   }
 
   // Baterka
-  unsigned long now = millis();
-  bool currentState = digitalRead(batBtn.pin);
+  now = millis();
+  bool batCurrentState = digitalRead(batBtn.pin);
 
-  if (batBtn.lastState == HIGH && currentState == LOW) {
+  if (batBtn.lastState == HIGH && batCurrentState == LOW) {
     if (now - batBtn.lastPush > BUTTON_DELAY) {
       batBtn.lastPush = now;
       checkBattery();
       batBtn.offTime = now + 2000;  // Po jak dlouhou dobu bude indikace baterie svítit
     }
   }
-  batBtn.lastState = currentState;
+  batBtn.lastState = batCurrentState;
 
   // Automatické vypnutí LED vázané na tlačítko LED
   if (batBtn.offTime > 0 && now >= batBtn.offTime) {
     turnOffLeds();
     batBtn.offTime = 0;
   }
-
-  // emergency tlačítko
-  now = millis();
-  currentState = digitalRead(emeBtn.pin);
-
-
-  if (emeBtn.lastState == HIGH && currentState == LOW) {
-    if (now - emeBtn.lastPush > BUTTON_DELAY) {
-      emeBtn.lastPush = now;
-      Serial.print("Spinkám, jsem vystresovaný!!!!");
-      // int emergency_time = 10000; // Doba nouzového čekání po zmáčknutí emergency tlačítka
-      // unsigned long enter_time = millis();
-      bool cont = true;
-      while(cont)
-      {
-        ESPNOW_send(0, 0, 0, 0);
-        now = millis();
-        currentState = digitalRead(emeBtn.pin);
-        if (emeBtn.lastState == HIGH && currentState == LOW){
-          if(now - emeBtn.lastPush > BUTTON_DELAY){
-            emeBtn.lastPush = now;
-            Serial.println("Vystupuji ze smyčky, jsem odstresovaný!!!!");
-            cont = false;
-          }
-        }
-      } 
-    }
-  }
-
-  // ESP NOW
-  ESPNOW_send(roll_input, pitch_input, yaw_input, throttle_input);
 
   delay(5);
 }
