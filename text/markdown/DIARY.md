@@ -51,4 +51,9 @@
 ## 23. března 2026
 - Zjištěny parametry STM32 v Betaflight configuratoru
 - Začátek řešení komunikace mezi přijímačem a vysílačem
-- Začátek zjišťování parametrů vysílače 
+- Začátek zjišťování parametrů vysílače
+
+## 24. března 2026
+- Zprovozněna první provizorní komunikace mezi TX a RX
+- Přeflashnuty firmwary obou těchto zařízení (společná verze 3.6.3.)
+- Připájen RX na mikrokontroler 
