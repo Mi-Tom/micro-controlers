@@ -8,7 +8,7 @@ uint16_t kanaly[16];
 void setup() {
   Serial.begin(115200);
   // Tvoje osvědčená rychlost a piny
-  ELRSSerial.begin(400000, SERIAL_8N1, 16, 17); 
+  ELRSSerial.begin(420000, SERIAL_8N1, 16, 17); 
   
   // Nastavíme kanály na střed
   for(int i=0; i<16; i++) kanaly[i] = 1500;
@@ -46,7 +46,7 @@ uint8_t crsf_crc8(uint8_t *data, uint8_t len) {
 
 void posliCrsfKanaly(uint16_t *channels) {
   uint8_t packet[26];
-  packet[0] = 0xEE; // SYNC
+  packet[0] = 0xC8; // SYNC - puvodne bylo na 0xEE
   packet[1] = 24;   // Délka
   packet[2] = 0x16; // Typ: RC Channels
 
