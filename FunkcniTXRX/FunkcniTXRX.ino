@@ -111,11 +111,12 @@ void loop() {
   Serial.println(message.throttle);
   Serial.println("----------------");
 
-  kanaly[0] = 1500 + message.roll * 500;        // Roll
-  kanaly[1] = 1500 + message.pitch * 500;       // Pitch
-  kanaly[2] = 1000 + message.throttle * 1000;   // Throttle
-  kanaly[3] = 1500 + message.yaw * 500;         // Yaw
+  kanaly[0] = 1500 + message.roll * 400;        // Roll
+  kanaly[1] = 1500 + message.pitch * 400;       // Pitch
+  kanaly[2] = 1000 + message.throttle * 900;    // Throttle
+  kanaly[3] = 1500 + message.yaw * 400;         // Yaw
   kanaly[4] = 2000;                             // AUX1 (Arm)
+  kanaly[5] = 2000;                             // AUX2 (Angle mode)
   // -------------------------------------------------------
 
   // Zavoláme "černou skříňku", která data zabalí a pošle
