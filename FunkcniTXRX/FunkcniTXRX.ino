@@ -1,48 +1,20 @@
 #include <Arduino.h>
+#include <esp_now.h>
+#include <WiFi.h>
 
-HardwareSerial ELRSSerial(2); // UART2 (TX na pinu 17)
+// --- ESP-NOW ---
+typedef struct struct_message {
+  float roll;
+  float pitch;
+  float yaw;
+  float throttle;
+} struct_message;
 
-// Pole pro kanály (1000 až 2000)
+struct_message message;
+
+// --- ELRS TX ---
+HardwareSerial ELRSSerial(2);
 uint16_t kanaly[16];
-
-void setup() {
-  Serial.begin(115200);
-  // Tvoje osvědčená rychlost a piny
-  ELRSSerial.begin(420000, SERIAL_8N1, 16, 17); 
-  
-  // Nastavíme kanály na střed
-  for(int i=0; i<16; i++) kanaly[i] = 1500;
-  
-  Serial.println("Vysílač připraven!");
-}
-
-void loop() {
-  float t = millis() / 1000.0;
-
-  // --- TADY SI NASTAVUJ HODNOTY (Jednoduché a přehledné) ---
-  kanaly[0] = 1500 + sin(t) * 500;           // Roll
-  kanaly[2] = 1000 + (sin(t * 0.5) + 1) * 500; // Throttle
-  kanaly[4] = 2000;                          // AUX1 (Arm)
-  // -------------------------------------------------------
-
-  // Zavoláme "černou skříňku", která data zabalí a pošle
-  posliCrsfKanaly(kanaly);
-
-  delay(20); // 50 Hz frekvence odesílání
-}
-
-// --- FUNKCE PRO VÝPOČET CRC A BALENÍ (Té si nemusíš všímat) ---
-uint8_t crsf_crc8(uint8_t *data, uint8_t len) {
-  uint8_t crc = 0;
-  for (uint8_t i = 0; i < len; i++) {
-    crc ^= data[i];
-    for (uint8_t j = 0; j < 8; j++) {
-      if (crc & 0x80) crc = (crc << 1) ^ 0xD5;
-      else crc <<= 1;
-    }
-  }
-  return crc;
-}
 
 void posliCrsfKanaly(uint16_t *channels) {
   uint8_t packet[26];
@@ -82,4 +54,72 @@ void posliCrsfKanaly(uint16_t *channels) {
 
   packet[25] = crsf_crc8(&packet[2], 23);
   ELRSSerial.write(packet, 26);
+}
+
+// --- FUNKCE PRO VÝPOČET CRC A BALENÍ ---
+uint8_t crsf_crc8(uint8_t *data, uint8_t len) {
+  uint8_t crc = 0;
+  for (uint8_t i = 0; i < len; i++) {
+    crc ^= data[i];
+    for (uint8_t j = 0; j < 8; j++) {
+      if (crc & 0x80) crc = (crc << 1) ^ 0xD5;
+      else crc <<= 1;
+    }
+  }
+  return crc;
+}
+
+void data_receive(const esp_now_recv_info *info, const uint8_t *data, int len) {
+  memcpy(&message, data, sizeof(message));
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  // --- ELRS TX ---
+  ELRSSerial.begin(420000, SERIAL_8N1, 16, 17); 
+  for(int i=0; i<16; i++) kanaly[i] = 1500;
+  kanaly[4] = 1000;
+
+  // --- ESP-NOW ---
+  WiFi.mode(WIFI_STA);
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+  esp_now_register_recv_cb(data_receive);
+  
+  Serial.println("Vysílač ESP-NOW -> ELRS připraven!");
+}
+
+void loop() {
+  float t = millis() / 1000.0;
+
+  // --- TADY SI NASTAVUJ HODNOTY (Jednoduché a přehledné) ---
+
+  Serial.println("Data received:");
+  Serial.print("Roll: ");
+  Serial.println(message.roll);
+
+  Serial.print("Pitch: ");
+  Serial.println(message.pitch);
+
+  Serial.print("Yaw: ");
+  Serial.println(message.yaw);
+
+  Serial.print("Throttle: ");
+  Serial.println(message.throttle);
+  Serial.println("----------------");
+
+  kanaly[0] = 1500 + message.roll * 500;        // Roll
+  kanaly[1] = 1500 + message.pitch * 500;       // Pitch
+  kanaly[2] = 1000 + message.throttle * 1000;   // Throttle
+  kanaly[3] = 1500 + message.yaw * 500;         // Yaw
+  kanaly[4] = 2000;                             // AUX1 (Arm)
+  // -------------------------------------------------------
+
+  // Zavoláme "černou skříňku", která data zabalí a pošle
+  posliCrsfKanaly(kanaly);
+
+  delay(10); // 100 Hz frekvence odesílání
 }
