@@ -1,15 +1,15 @@
 # Deník
-## 5. března 2026
+## 5. dubna 2026
 - vytvořen tým 
 - vytvořen git repozitář
 
-## 13. března 2026
+## 13. dubna 2026
 - seznámení s programem Fusion 360
 - instalace a seznámení s programy pro programování mikrokontrolerů
 - Gaba má Zadig na svém počítači
 - seznámení s konfigurací pinů,... na STM32
 
-## 14. března 2026
+## 14. dubna 2026
 - přehrán firmware mikrokontroleru (nalezen původní)
 - zjištěna závada mikrokontroleru - nefunguje gyroskop (ale funguje barometr)
 - začátek práce na 3D modelech
@@ -17,17 +17,17 @@
 - zjištěny díly, které jsou potřeba k motion controlleru
 - návrh umístění kamery do dronu
 
-## 15. března 2026
+## 15. dubna 2026
 - začátek návrhu dronu 
 - navržena základní kostra dronu
 - návrh držáku na kameru pro dron
 
-## 16. března 2026
+## 16. dubna 2026
 - otestován senzor MPU6500
 - začátek prací na softwaru pro motion controller
 - ladicí práce na držáku na kameru pro dron
 
-## 17. března 2026
+## 17. dubna 2026
 - Zjištěno, že senzor je 6500 a ne 6050
 - otestován první program - teď to funguje
 - 1. ÚSPĚCH - Dostali jsme první data z gyroskopu a akcelerometru
@@ -35,7 +35,7 @@
 - Zapsány ukázkové vzorce
 - Zprovoznen provizorni kod pro komplementarni filtr
 
-## 18. března 2026
+## 18. dubna 2026
 - Zdokonaleno nacitani dat z gyroskopu a akcelerometru
 - Pridana funkce pro potenciometr, ktery ovlada rychlost dronu (zatim bez zpetneho chodu a omezeni)
 - Pridan obvod referencniho napeti, zjisteno napeti a stav nabiti baterie
@@ -44,16 +44,21 @@
 - Rozpracovan stojan na mobil, vysilac (3D model)
 - Rozmontovan prijimac kamera --> Navrhnuta nova, lepsi krabicka
 
-## 22. března 2026
+## 22. dubna 2026
 - Přeflashnut firmware STM32 - FUNGUJE!!
 - Funkční gyroskop, akcelerometr na STM32
 
-## 23. března 2026
+## 23. dubna 2026
 - Zjištěny parametry STM32 v Betaflight configuratoru
 - Začátek řešení komunikace mezi přijímačem a vysílačem
 - Začátek zjišťování parametrů vysílače
 
-## 24. března 2026
+## 24. dubna 2026
 - Zprovozněna první provizorní komunikace mezi TX a RX
 - Přeflashnuty firmwary obou těchto zařízení (společná verze 3.6.3.)
-- Připájen RX na mikrokontroler 
+- Připájen RX na mikrokontroler
+
+## 30. dubna 2026
+- Další pokusy s komunikací mezi TX a RX
+- Nyní předávány správné formáty dat pro MCU
+- Převedení formátu do CRSF (pro MCU)
