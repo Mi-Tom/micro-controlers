@@ -51,7 +51,7 @@ Button AUX2Btn = { 18, 0, HIGH, 0}; // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
 bool isEmergency = false;
 
 bool isAUX1 = false;
-bool isAUX2 = false;
+bool isAUX2 = true;
 
 //---- ESP NOW komunikace ----
 uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };  //MAC adresa
