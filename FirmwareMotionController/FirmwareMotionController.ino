@@ -53,6 +53,8 @@ bool isEmergency = false;
 bool isAUX1 = false;
 bool isAUX2 = true;
 
+bool AUX1LongPressDone = false;
+
 //---- ESP NOW komunikace ----
 uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };  //MAC adresa
 
@@ -243,19 +245,43 @@ void loop() {
   // AUX1 tlacitko
   bool AUX1CurrentState = digitalRead(AUX1Btn.pin);
 
-  if (AUX1Btn.lastState == HIGH && AUX1CurrentState == LOW) {
-    if (now - AUX1Btn.lastPush > BUTTON_DELAY) {
-      AUX1Btn.lastPush = now;
-      isAUX1 = !isAUX1;
+// začátek stisku
+if (AUX1CurrentState == LOW && AUX1Btn.lastState == HIGH) {
+  AUX1Btn.lastPush = now;
+  AUX1LongPressDone = false;
+}
 
-      if (isAUX1) {
-        Serial.print("AUX1!!!!");
-      } else {
-        Serial.println("NENI AUX1!!!!");
-      }
+// držení tlačítka
+if (AUX1CurrentState == LOW) {
+  if (!AUX1LongPressDone && (now - AUX1Btn.lastPush > 1000)) {
+    isAUX1 = !isAUX1;
+    AUX1LongPressDone = true;   // zabrání dalším přepnutím
+  }
+}
+
+// puštění tlačítka resetuje stav
+if (AUX1CurrentState == HIGH && AUX1Btn.lastState == LOW) {
+  AUX1LongPressDone = false;
+}
+
+AUX1Btn.lastState = AUX1CurrentState;
+  /*bool AUX1CurrentState = digitalRead(AUX1Btn.pin);
+
+  // detekce začátku stisku
+  if (AUX1CurrentState == LOW && AUX1Btn.lastState == HIGH) {
+    AUX1Btn.lastPush = now;  // uloží čas začátku stisku
+  }
+
+  // když je tlačítko stále držené
+  if (AUX1CurrentState == LOW) {
+    if (now - AUX1Btn.lastPush > 1000) {  // 500 ms = dlouhé držení
+      isAUX1 = !isAUX1;                  // přepnutí stavu
+      AUX1Btn.lastPush = now + 1000;     // zabrání opakovanému přepínání
     }
   }
-  AUX1Btn.lastState = AUX1CurrentState;
+
+AUX1Btn.lastState = AUX1CurrentState;*/
+
 
   // AUX2 tlacitko
   bool AUX2CurrentState = digitalRead(AUX2Btn.pin);

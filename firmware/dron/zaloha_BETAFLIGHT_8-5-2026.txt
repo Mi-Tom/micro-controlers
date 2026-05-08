@@ -1,0 +1,56 @@
+# 
+
+# diff all
+
+# version
+# Betaflight / STM32F405 (F405) 2025.12.2 Mar 24 2026 / 03:09:13 (79065c96b) MSP API: 1.47
+# config rev: e378347
+
+# start the command batch
+batch start
+
+# reset configuration to default settings
+defaults nosave
+
+board_name SPEDIXF405
+manufacturer_id SPDX
+mcu_id 004c00543135511535373936
+signature 
+
+# feature
+feature TELEMETRY
+feature LED_STRIP
+feature OSD
+
+# aux
+aux 0 0 0 1700 2100 0 0
+aux 1 1 1 1700 2100 0 0
+
+# master
+set acc_calibration = 14,24,40,1
+
+profile 0
+
+profile 1
+
+profile 2
+
+profile 3
+
+# restore original profile selection
+profile 0
+
+rateprofile 0
+
+rateprofile 1
+
+rateprofile 2
+
+rateprofile 3
+
+# restore original rateprofile selection
+rateprofile 0
+
+# save configuration
+save
+# 
