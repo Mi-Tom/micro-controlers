@@ -54,6 +54,10 @@ Button AUX1Btn = { 19, 0, HIGH, 0}; // - Žlutý kabel, AUX1 - ARM
 Button AUX2Btn = { 18, 0, HIGH, 0}; // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
 
 //---- Emergency mod ----
+unsigned long lastBlinkTime = 0;
+bool blinkState = false;
+const int blinkInterval = 300; // ms
+
 bool isEmergency = false;
 
 bool isAUX1 = false;
@@ -79,6 +83,25 @@ struct_message message;
 int p = 0;
 
 // =====================TESTOVANI_NAPETI_BATERIE=====================
+int getBatteryLedCount() {
+  int refRaw = analogRead(PIN_REF);
+  int batRaw = analogRead(PIN_BAT);
+
+  float voltage = (float(batRaw) / refRaw) * 2.5 * VOLT_RATIO;
+  int percent = constrain((voltage - 3.2) * 100, 0, 100);
+
+  int ledsToLight = map(percent, 0, 100, 0, ledCount);
+  ledsToLight = constrain(ledsToLight, 1, ledCount);
+
+  return ledsToLight;
+}
+
+void showBatteryLeds(int ledsToLight) {
+  for (int i = 0; i < ledCount; i++) {
+    if (i < ledsToLight) digitalWrite(ledPins[i], HIGH);
+    else digitalWrite(ledPins[i], LOW);
+  }
+}
 
 void checkBattery() {
   int refRaw = analogRead(PIN_REF);
@@ -291,23 +314,6 @@ if (AUX1CurrentState == HIGH && AUX1Btn.lastState == LOW) {
 }
 
 AUX1Btn.lastState = AUX1CurrentState;
-  /*bool AUX1CurrentState = digitalRead(AUX1Btn.pin);
-
-  // detekce začátku stisku
-  if (AUX1CurrentState == LOW && AUX1Btn.lastState == HIGH) {
-    AUX1Btn.lastPush = now;  // uloží čas začátku stisku
-  }
-
-  // když je tlačítko stále držené
-  if (AUX1CurrentState == LOW) {
-    if (now - AUX1Btn.lastPush > 1000) {  // 500 ms = dlouhé držení
-      isAUX1 = !isAUX1;                  // přepnutí stavu
-      AUX1Btn.lastPush = now + 1000;     // zabrání opakovanému přepínání
-    }
-  }
-
-AUX1Btn.lastState = AUX1CurrentState;*/
-
 
   // AUX2 tlacitko
   bool AUX2CurrentState = digitalRead(AUX2Btn.pin);
@@ -407,8 +413,8 @@ AUX1Btn.lastState = AUX1CurrentState;*/
   if (batBtn.lastState == HIGH && batCurrentState == LOW) {
     if (now - batBtn.lastPush > BUTTON_DELAY) {
       batBtn.lastPush = now;
-      checkBattery();
-      batBtn.offTime = now + 2000;  // Po jak dlouhou dobu bude indikace baterie svítit
+
+      batBtn.offTime = now + 2000;  // normální zobrazení na 2s
     }
   }
   batBtn.lastState = batCurrentState;
@@ -419,5 +425,31 @@ AUX1Btn.lastState = AUX1CurrentState;*/
     batBtn.offTime = 0;
   }
 
+  if (isEmergency) {
+
+  int leds = getBatteryLedCount();
+
+  if (now - lastBlinkTime >= blinkInterval) {
+    lastBlinkTime = now;
+    blinkState = !blinkState;
+  }
+
+  if (blinkState) {
+    showBatteryLeds(leds);
+  } else {
+    turnOffLeds();
+  }
+
+} 
+else if (batBtn.offTime > 0 && now < batBtn.offTime) {
+
+  int leds = getBatteryLedCount();
+  showBatteryLeds(leds);
+
+} 
+else {
+  turnOffLeds();
+  batBtn.offTime = 0;
+}
   delay(5);
 }
