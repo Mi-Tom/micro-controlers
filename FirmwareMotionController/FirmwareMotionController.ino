@@ -337,10 +337,10 @@ void loop() {
 
   } else {
     // Vypis
-    printout_data(0, 0, 0, 0, isAUX1, isAUX2);
+    printout_data(0, 0, 0, 0.5, isAUX1, isAUX2);
 
     // ESP-NOW
-    ESPNOW_send(0, 0, 0, 0, isAUX1, isAUX2);
+    ESPNOW_send(0, 0, 0, 0.5, isAUX1, isAUX2);
   }
 
   // Baterka
