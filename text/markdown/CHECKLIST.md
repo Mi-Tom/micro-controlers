@@ -15,12 +15,28 @@
 	- případná oprava v Configuration --> Board and sensor alignment
 
 	- Kalibrace akcelerometru!
+	- Zkontrolovat gyro drift
+		- model nesmí sám pomalu utíkat
+	- Zkontrolovat CPU load
+		- neměl by být příliš vysoký
 
 ## Ports Tab - UART
 	- UART receiver - zapnout SERIAL RX (pouze na správném UART)
 	- VTX control - peripherals --> SmartAudio
 
 ## Configuration Tab
+### Air Mode
+	- Doporučeno zapnout
+	- Lepší kontrola při nízkém throttle
+### Motor Output Limit
+	- Pro první let možno omezit výkon:
+		- např. 70-80 %
+	- Dron bude klidnější
+### Dynamic Idle
+	- Nechat default
+	- Důležité pro stabilitu
+### OSD
+	- Zapnout OSD feature
 ### Mixer
 	- Nastavit Quad X (máme čtxři motory)
 ### ESC/Motor protocol
@@ -44,6 +60,12 @@
 
 ## Receiver Tab
 	- Ověření radia
+### AUX kanály
+	- Ověřit funkci všech přepínačů
+### RSSI / LQ
+	- Ověřit:
+		- mění se hodnoty
+		- telemetry funguje
 ### Směry
 	- Musí sedět směry natočení motion controlleru
 ### Reverz
@@ -55,6 +77,12 @@
 
 ## Modes Tab
 	- Nastavení přepínačů
+### PREARM
+	- Doporučeno
+	- Extra bezpečnost proti nechtěnému armu
+### FLIP OVER AFTER CRASH
+	- Turtle mode
+	- Pouze pokud chceme
 ### ARM
 	- Nejdůležitější switch
 ### ANGLE Mode
@@ -65,6 +93,14 @@
 
 ## Motors Tab
 	- PŘED TÍM SUNDAT VRTULE!!!
+### Stabilizační reakce motorů
+	- Naklonit dron rukou
+	- Motory musí reagovat PROTI pohybu
+
+	- Pokud reagují špatně:
+		- špatná orientace FC
+		- špatný mixer
+		- hrozí instant flip of death
 ### Pořadí motorů
 	- Kliknout na motor 1 - MUsí se roztočit správný motor
 	- Pokud ne - wiring problém nebo musíme resource remapnout
@@ -75,8 +111,16 @@
 	- Příliš nízký - dron padá při prudkých manévrech
 	- Příliš vysoký - nestabilita při přistání
 	- Typicky 5-7 %
+### Kontrola vibrací
+	- Motory nesmí:
+		- vibrovat
+		- drhnout
+		- přeskakovat
 
 ## ESC konfigurace
+	- Pokud používáme DSHOT:
+		- ESC calibration se NEDĚLÁ
+	- Jinak:
 	- Pomocí:
 		- BLHeliSuite32
 		- Bluejay
@@ -96,6 +140,24 @@
 		- motory se zastaví
 	- Špatné chování:
 		- motory běží dál
+		
+## VTX
+	- Anténa MUSÍ být připojená
+### Output power
+	- Pro maiden:
+		- 25-100 mW
+### Pit mode
+	- Doporučeno při bench testech
+### Channel/Band
+	- Ověřit správný kanál v goggles
+## OSD
+	- Přidat:
+		- Average cell voltage
+		- flight mode
+
+## Filtry
+	- Nechat default
+	- Nic netunit před maidenem
 
 ## OSD
 	- Doporučené prvky:
