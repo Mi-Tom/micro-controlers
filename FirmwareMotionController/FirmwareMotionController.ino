@@ -12,6 +12,12 @@
 #define POTPIN 33   // Pin pro potenciomentr
 #define PIN_BAT 32  // Pin pro dělič baterie
 #define PIN_REF 35  // Pin pro LM285 (2.5V)
+#define CALIB_BTN 23  // Pin pro kalibrovaci tlacitko
+
+//---- Kalibrace ---
+float rollOffset = 0;
+float pitchOffset = 0;
+float yawOffset = 0;
 
 //---- Gyroskop ----
 MPU6050 accelgyro;
@@ -166,9 +172,24 @@ void printout_data(float roll_input, float pitch_input, float yaw_input, float t
   }
 }
 
+//========================KALIBRACE===================================
+void calibrateController() {
+
+  rollOffset = angleX;
+  pitchOffset = angleY;
+  yawOffset = yaw_angle;
+
+  Serial.println("================================");
+  Serial.println("KONTROLER ZKALIBROVAN");
+  Serial.println("Nova neutralni pozice nastavena");
+  Serial.println("================================");
+}
 // ==============================SETUP===============================
 
 void setup() {
+  // Kalibracni tlacitko
+  pinMode(CALIB_BTN, INPUT_PULLUP);
+
   // Akcelerometr a Gyroskop
   Wire.begin(21, 22);  // Inicializace I2C na pinech ESP32
   Serial.begin(115200);
@@ -242,6 +263,11 @@ void loop() {
   }
   emeBtn.lastState = emeCurrentState;
 
+  // Kalibrace
+  if (digitalRead(CALIB_BTN) == LOW) {
+    calibrateController();
+    delay(500);
+  }
   // AUX1 tlacitko
   bool AUX1CurrentState = digitalRead(AUX1Btn.pin);
 
@@ -323,8 +349,8 @@ AUX1Btn.lastState = AUX1CurrentState;*/
     angleX = alpha * (angleX + gx_dps * dt) + (1 - alpha) * accAngleX;
     angleY = alpha * (angleY + gy_dps * dt) + (1 - alpha) * accAngleY;
 
-    float roll_input = angleX / MAXTILT;
-    float pitch_input = angleY / MAXTILT;
+    float roll_input = (angleX - rollOffset) / MAXTILT;
+    float pitch_input = (angleY - pitchOffset) / MAXTILT;
     float yaw_rate = gz / 131.0;
 
     if (abs(yaw_rate) < 1.0) {
@@ -334,7 +360,7 @@ AUX1Btn.lastState = AUX1CurrentState;*/
     yaw_angle += yaw_rate * dt;
     yaw_angle *= 0.995;
 
-    float yaw_input = yaw_angle / MAXYAWANGLE;
+    float yaw_input = (yaw_angle - yawOffset) / MAXYAWANGLE;
 
     yaw_input = 0.9 * yaw_input_prev + 0.1 * yaw_input;
     yaw_input_prev = yaw_input;
