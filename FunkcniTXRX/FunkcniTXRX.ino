@@ -18,7 +18,7 @@ uint16_t kanaly[16];
 
 void posliCrsfKanaly(uint16_t *channels) {
   uint8_t packet[26];
-  packet[0] = 0xC8; // SYNC - puvodne bylo na 0xEE
+  packet[0] = 0xEE; // SYNC - puvodne bylo na 0xEE
   packet[1] = 24;   // Délka
   packet[2] = 0x16; // Typ: RC Channels
 
