@@ -62,6 +62,10 @@
 - Šrouby: Výška - 9,49 mm, Průměr - 3 mm (2,87 mm)
 ---
 
+## Co můžeme přidělat (pro bezpečnost):
+- V iNav: Povolit "Disarm only when throttle is low"
+- 
+
 ## Co je potřeba udělat (pokud se nudíš)
 - Napsat Git
 - Naprogramovat TempleOS
