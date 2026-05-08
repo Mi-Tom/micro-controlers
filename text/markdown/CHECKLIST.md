@@ -5,6 +5,13 @@
 
 # 2. Kontrola elektroniky:
 	- Ověření všeho multimetrem
+	
+iNAV má v základu nastaveno, že ti nedovolí odarmovat, pokud nemá GPS fix. To musíš vypnout.
+
+    Checklist update: V CLI (příkazová řádka) zadej:
+    set nav_extra_arming_safety = OFF
+    save
+    Bez tohoto příkazu dron nenastartuješ, protože bude stále marně hledat satelity.
 
 # 3. Konfigurace ve flight controlleru:
 ## Setup Tab
@@ -14,7 +21,7 @@
 	- Důkladně zkontrolovat!
 	- případná oprava v Configuration --> Board and sensor alignment
 
-	- Kalibrace akcelerometru!
+	- Kalibrace dronu! 
 	- Zkontrolovat gyro drift
 		- model nesmí sám pomalu utíkat
 	- Zkontrolovat CPU load
@@ -37,6 +44,7 @@
 	- Důležité pro stabilitu
 ### OSD
 	- Zapnout OSD feature
+	- Odstranit GPS prvky
 ### Mixer
 	- Nastavit Quad X (máme čtxři motory)
 ### ESC/Motor protocol
@@ -140,6 +148,7 @@
 		- motory se zastaví
 	- Špatné chování:
 		- motory běží dál
+	- Nastavit Procedure: Drop nebo Land
 		
 ## VTX
 	- Anténa MUSÍ být připojená
