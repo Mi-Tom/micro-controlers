@@ -352,8 +352,13 @@ AUX1Btn.lastState = AUX1CurrentState;*/
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
     // Pontenciometr
-    int pot_value = analogRead(POTPIN);
+    int pot_value = analogRead(POTPIN);    
     float throttle_input = pot_value / 4095.0;
+
+    if (throttle_input > 0.48 && throttle_input < 0.52) 
+    {
+      throttle_input = 0.5;
+    }
 
     // Vypis
     printout_data(roll_input, pitch_input, yaw_input, throttle_input, isAUX1, isAUX2);
