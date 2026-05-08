@@ -8,6 +8,8 @@ typedef struct struct_message {
   float pitch;
   float yaw;
   float throttle;
+  bool aux1;
+  bool aux2;
 } struct_message;
 
 struct_message message;
@@ -113,10 +115,24 @@ void loop() {
 
   kanaly[0] = 1500 + message.roll * 400;        // Roll
   kanaly[1] = 1500 + message.pitch * 400;       // Pitch
-  kanaly[2] = 1000 + message.throttle * 900;    // Throttle
+  kanaly[2] = 1000 + message.throttle * 1000;    // Throttle
   kanaly[3] = 1500 + message.yaw * 400;         // Yaw
-  kanaly[4] = 2000;                             // AUX1 (Arm)
-  kanaly[5] = 2000;                             // AUX2 (Angle mode)
+  if(message.aux1)
+  {
+    kanaly[4] = 2000;                             // AUX1 (Arm)
+  }
+  else
+  {
+    kanaly[4] = 1000;
+  }
+  if(message.aux2)
+  {
+    kanaly[5] = 2000;                             // AUX2 (Angle mode)
+  }
+  else
+  {
+    kanaly[5] = 1000;
+  }
   // -------------------------------------------------------
 
   // Zavoláme "černou skříňku", která data zabalí a pošle
