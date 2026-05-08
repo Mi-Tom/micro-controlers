@@ -44,8 +44,14 @@ struct Button {
 Button batBtn = { 27, 0, HIGH, 0 };
 Button emeBtn = { 26, 0, HIGH, 0 };
 
+Button AUX1Btn = { 19, 0, HIGH, 0}; // - Žlutý kabel, AUX1 - ARM
+Button AUX2Btn = { 18, 0, HIGH, 0}; // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
+
 //---- Emergency mod ----
 bool isEmergency = false;
+
+bool isAUX1 = false;
+bool isAUX2 = false;
 
 //---- ESP NOW komunikace ----
 uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };  //MAC adresa
@@ -55,6 +61,8 @@ typedef struct struct_message {
   float pitch;
   float yaw;
   float throttle;
+  bool aux1;
+  bool aux2;
 } struct_message;
 
 struct_message message;
@@ -98,11 +106,13 @@ void turnOffLeds() {
 
 // ==============================ESP NOW=============================
 
-void ESPNOW_send(float roll_input, float pitch_input, float yaw_input, float throttle_input) {
+void ESPNOW_send(float roll_input, float pitch_input, float yaw_input, float throttle_input, bool a1, bool a2) {
   message.roll = roll_input;
   message.pitch = pitch_input;
   message.yaw = yaw_input;
   message.throttle = throttle_input;
+  message.aux1 = a1;
+  message.aux2 = a2;
 
   esp_err_t outcome = esp_now_send(broadcastAddress, (uint8_t *)&message, sizeof(message));
 
@@ -120,7 +130,7 @@ void data_sent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
 }
 
 // ========================POMOCNY_VYPIS_UDAJU=======================
-void printout_data(float roll_input, float pitch_input, float yaw_input, float throttle_input) {
+void printout_data(float roll_input, float pitch_input, float yaw_input, float throttle_input, bool a1, bool a2) {
   p++;
   if (p == 10) {
     Serial.print("Roll:\t");
@@ -133,6 +143,22 @@ void printout_data(float roll_input, float pitch_input, float yaw_input, float t
     //Serial.println(pot_value);
     Serial.print("Throttle:\t");
     Serial.println(throttle_input);
+    if(a1)
+    {
+      Serial.print("AUX1 = TRUE\t|\t");
+    }
+    else
+    {
+      Serial.print("AUX1 = FALSE\t|\t");
+    }
+    if(a2)
+    {
+      Serial.println("AUX2 = TRUE");
+    }
+    else
+    {
+      Serial.println("AUX2 = FALSE");
+    }
     Serial.println("---------------");
     p = 0;
   }
@@ -166,6 +192,12 @@ void setup() {
   // emergency button
   pinMode(emeBtn.pin, INPUT_PULLUP);
 
+  // AUX1 tlacitko
+  pinMode(AUX1Btn.pin, INPUT_PULLUP);
+
+  // AUX2 tlacitko
+  pinMode(AUX2Btn.pin, INPUT_PULLUP);
+
   // ESP NOW
   WiFi.mode(WIFI_STA);
   if (esp_now_init() != ESP_OK) {
@@ -190,6 +222,7 @@ void setup() {
 void loop() {
   // ---- emergency tlačítko ----
   unsigned long now = millis();
+
   bool emeCurrentState = digitalRead(emeBtn.pin);
 
   if (emeBtn.lastState == HIGH && emeCurrentState == LOW) {
@@ -206,6 +239,40 @@ void loop() {
     }
   }
   emeBtn.lastState = emeCurrentState;
+
+  // AUX1 tlacitko
+  bool AUX1CurrentState = digitalRead(AUX1Btn.pin);
+
+  if (AUX1Btn.lastState == HIGH && AUX1CurrentState == LOW) {
+    if (now - AUX1Btn.lastPush > BUTTON_DELAY) {
+      AUX1Btn.lastPush = now;
+      isAUX1 = !isAUX1;
+
+      if (isAUX1) {
+        Serial.print("AUX1!!!!");
+      } else {
+        Serial.println("NENI AUX1!!!!");
+      }
+    }
+  }
+  AUX1Btn.lastState = AUX1CurrentState;
+
+  // AUX2 tlacitko
+  bool AUX2CurrentState = digitalRead(AUX2Btn.pin);
+
+  if (AUX2Btn.lastState == HIGH && AUX2CurrentState == LOW) {
+    if (now - AUX2Btn.lastPush > BUTTON_DELAY) {
+      AUX2Btn.lastPush = now;
+      isAUX2 = !isAUX2;
+
+      if (isAUX2) {
+        Serial.print("AUX2!!!!");
+      } else {
+        Serial.println("NENI AUX2!!!!");
+      }
+    }
+  }
+  AUX2Btn.lastState = AUX2CurrentState;
 
   // ---- Akcelerometr a Gyroskop ----
   // casovy vypocet pro akcelerometr a gyroskop
@@ -263,17 +330,17 @@ void loop() {
     float throttle_input = pot_value / 4095.0;
 
     // Vypis
-    printout_data(roll_input, pitch_input, yaw_input, throttle_input);
+    printout_data(roll_input, pitch_input, yaw_input, throttle_input, isAUX1, isAUX2);
 
     // ESP-NOW
-    ESPNOW_send(roll_input, pitch_input, yaw_input, throttle_input);
+    ESPNOW_send(roll_input, pitch_input, yaw_input, throttle_input, isAUX1, isAUX2);
 
   } else {
     // Vypis
-    printout_data(0, 0, 0, 0);
+    printout_data(0, 0, 0, 0, isAUX1, isAUX2);
 
     // ESP-NOW
-    ESPNOW_send(0, 0, 0, 0);
+    ESPNOW_send(0, 0, 0, 0, isAUX1, isAUX2);
   }
 
   // Baterka
