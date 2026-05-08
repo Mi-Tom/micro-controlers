@@ -1,5 +1,5 @@
 # Deník
-## 5. dubna 2026
+## 5. března 2026
 - vytvořen tým 
 - vytvořen git repozitář
 
@@ -62,3 +62,13 @@
 - Další pokusy s komunikací mezi TX a RX
 - Nyní předávány správné formáty dat pro MCU
 - Převedení formátu do CRSF (pro MCU)
+
+## 7. května 2026
+- Dodělání 3D modelů
+- Začátek tisku 3D modelů
+- Napsán CHECKLIST.md k prvnímu startu dronu
+- Upravení týmového deníku (Libre Office, Google Docs)
+
+## 8. května 2026
+- Pokračování tisku 3D modelů
+
