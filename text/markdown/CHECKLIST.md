@@ -6,7 +6,7 @@
 # 2. Kontrola elektroniky:
 	- Ověření všeho multimetrem
 	
-iNAV má v základu nastaveno, že ti nedovolí odarmovat, pokud nemá GPS fix. To musíš vypnout.
+- Jelikož nemáme GPS tak musíme udělat tohle: iNAV má v základu nastaveno, že ti nedovolí odarmovat, pokud nemá GPS fix. To musíš vypnout.
 
     Checklist update: V CLI (příkazová řádka) zadej:
     set nav_extra_arming_safety = OFF
@@ -14,180 +14,257 @@ iNAV má v základu nastaveno, že ti nedovolí odarmovat, pokud nemá GPS fix. 
     Bez tohoto příkazu dron nenastartuješ, protože bude stále marně hledat satelity.
 
 # 3. Konfigurace ve flight controlleru:
-## Setup Tab
-	- orientace a senzory
-	- Náklon doprava na obrazovce musí být náklon doprava v realitě!!!
-	- Zvednutí nosu musí být zvednutí nosu!!!
-	- Důkladně zkontrolovat!
-	- případná oprava v Configuration --> Board and sensor alignment
-
-	- Kalibrace dronu! 
-	- Zkontrolovat gyro drift
-		- model nesmí sám pomalu utíkat
-	- Zkontrolovat CPU load
-		- neměl by být příliš vysoký
-
-## Ports Tab - UART
-	- UART receiver - zapnout SERIAL RX (pouze na správném UART)
-	- VTX control - peripherals --> SmartAudio
-
+## Před konfigurací
+    - Sundat vrtule při všech bench testech
+    - Zapnout rádio před připojením baterie
+    - Ověřit správný target a verzi firmware
+    - Po flashi:
+        - Full chip erase
+        - neobnovovat dump z jiného targetu
+##Setup Tab
+    - Orientace FC a senzory
+    - Zkontrolovat orientaci modelu
+    - Náklon doprava na obrazovce = náklon doprava v realitě
+    - Zvednutí nosu = zvednutí nosu v realitě
+    - Yaw musí odpovídat skutečnosti
+    - Důkladně zkontrolovat všechny osy
+    - Případná oprava:
+        - Configuration → Board and Sensor Alignment
+    - Kalibrace
+        - Kalibrace na dokonale rovné ploše
+        - Nekalibrovat v ruce
+        - Bez vibrací
+    - Zkalibrovat:
+        - Accelerometer
+        - Kontrola senzorů
+        - Gyro nesmí mít extrémní drift
+        - Horizon musí být rovný
+        - Model se nesmí výrazně samovolně otáčet
+    - CPU Load
+        - Zkontrolovat CPU load
+        - Ideálně pod 40–50 %
+        - Pokud je vysoký:
+            - snížit looptime
+            - vypnout nepotřebné funkce
+            - omezit filtry
+## Ports Tab
+    - UART konfigurace
+    - Receiver:
+        - zapnout Serial RX
+        - pouze na správném UARTu
+    - VTX control:
+        - Peripherals → SmartAudio nebo IRC Tramp
+    - Telemetry:
+        - zapnout podle použitého receiveru
 ## Configuration Tab
-### Air Mode
-	- Doporučeno zapnout
-	- Lepší kontrola při nízkém throttle
-### Motor Output Limit
-	- Pro první let možno omezit výkon:
-		- např. 70-80 %
-	- Dron bude klidnější
-### Dynamic Idle
-	- Nechat default
-	- Důležité pro stabilitu
-### OSD
-	- Zapnout OSD feature
-	- Odstranit GPS prvky
 ### Mixer
-	- Nastavit Quad X (máme čtxři motory)
-### ESC/Motor protocol
-	- DSHOT (doporučeno DSHOT 300/DSHOT 600), NEPOUŽÍVAT PWM, OneShot, MultiShot
+    - Nastavit:
+        - Quad X
+    - ESC/Motor protocol
+    - Používat:
+        - DSHOT300 nebo DSHOT600
+    - Nepoužívat:
+        - PWM
+        - OneShot
+        - MultiShot
 ### Bidirectional DSHOT
-	- POUZE pokud naše ESC podporuje Bluejay/BLHeli32 (Nemyslim si)
+    - Zapnout pouze pokud ESC podporuje:
+        - Bluejay
+        - BLHeli32
 ### Motor Direction
-	- Props In (default) - přední vrtule točí dovnitř
-	- Props Out - přední vrtule točí ven (dneska pry hodně popularni) -- Muzeme si vybrat co chceme
+    - Vybrat:
+        - Props In
+        - nebo Props Out
+    - Musí souhlasit:
+        - směr motorů
+        - diagram
+        - orientace vrtulí
 ### Receiver protocol
-	- Podle systému: ELRS - nastavit na CRSF (Podle me to mame)
+    - ELRS:
+        - CRSF
+    - Ověřit správný protocol podle receiveru
+### Air Mode
+    - Doporučeno zapnout
+    - Lepší kontrola při nízkém throttle
+### Dynamic Idle
+    - Nechat default
+### Motor Output Limit
+    - Pro maiden možno omezit:
+        - 70–80 %
+        - Dron bude klidnější
 ### Arming
-	- Minimum checks (kontrola gyro, throttle, failsafe, akcelerometr)
-### Battery settings
-	- Zkontrolovat baterku 
-	- Warning voltage: 3,5 V/cell
-	- Minimum voltage: 3,3 V/cell
-
-## Power & Battery Tab
-	- Zkontrolovat nepětí baterie
-
+    - Nechat základní safety checks:
+        - gyro
+        - throttle
+        - failsafe
+        - accelerometer
+### Battery Settings
+    - Warning voltage:
+        - 3.5 V/cell
+    - Minimum voltage:
+        - 3.3 V/cell
+    - Ověřit počet článků
+### Current Sensor
+    - Ověřit:
+        - current reading
+        - mAh consumed
+        - Zkalibrovat current scale
+### OSD
+    - Zapnout OSD feature
+    - Doporučené OSD prvky
+        - Voltage
+        - Average cell voltage
+        - mAh consumed
+        - RSSI
+        - LQ
+        - Warnings
+        - Timers
+        - Craft name
+        - Flight mode
 ## Receiver Tab
-	- Ověření radia
-### AUX kanály
-	- Ověřit funkci všech přepínačů
-### RSSI / LQ
-	- Ověřit:
-		- mění se hodnoty
-		- telemetry funguje
-### Směry
-	- Musí sedět směry natočení motion controlleru
-### Reverz
-	- Pokud je něco obráceně - oprava v radiu (ne v betaflightu)
-### Endpoints
-	- Min: 1000
-	- Mid: 1500
-	- Max: 2000 
-
+    - Ověření rádia
+    - Zkontrolovat všechny kanály
+    - Ověřit správné směry
+    - Reverz
+    - Pokud je něco obráceně:
+        - opravit v rádiu
+        - ne v iNavu
+    - Endpoints
+        - Min:
+        - 1000
+        - Mid:
+        - 1500
+        - Max:
+        - 2000
+    - AUX kanály
+    - Ověřit funkci všech switchů
+        - RSSI / LQ
+    - Ověřit:
+        - mění se hodnoty
+        - telemetry funguje
+### Receiver failsafe
+    - Vypnout rádio
+    - Zkontrolovat:
+        - receiver přejde do failsafe
+        - kanály nezůstávají zamrzlé na poslední hodnotě
 ## Modes Tab
-	- Nastavení přepínačů
-### PREARM
-	- Doporučeno
-	- Extra bezpečnost proti nechtěnému armu
-### FLIP OVER AFTER CRASH
-	- Turtle mode
-	- Pouze pokud chceme
-### ARM
-	- Nejdůležitější switch
-### ANGLE Mode
-	- Dron se sám stabilizuje
-	- Pro první let doporučené
-### BEEPER
-	- Extrémně užitečné při ztrátě dronu
-
+    - PREARM
+        - Doporučeno
+        - Extra ochrana proti nechtěnému armu
+    - ARM
+        - Hlavní arm switch
+    - ANGLE Mode
+        - Doporučeno pro maiden
+    - HORIZON Mode
+        - Volitelné
+    - BEEPER
+        - Velmi doporučeno
+    - TURTLE MODE
+        - Pouze pokud chceme
+        - Nepoužívat
+    - RTH
+    - POS HOLD
+    - CRUISE
+    - NAV modes
 ## Motors Tab
-	- PŘED TÍM SUNDAT VRTULE!!!
-### Stabilizační reakce motorů
-	- Naklonit dron rukou
-	- Motory musí reagovat PROTI pohybu
-
-	- Pokud reagují špatně:
-		- špatná orientace FC
-		- špatný mixer
-		- hrozí instant flip of death
-### Pořadí motorů
-	- Kliknout na motor 1 - MUsí se roztočit správný motor
-	- Pokud ne - wiring problém nebo musíme resource remapnout
-### Směr motorů
-	- Musí odpovídat diagramu (nevim jakymu)
-### Idle
-	- Nesmí být příliš nízký ani příliš vysoký
-	- Příliš nízký - dron padá při prudkých manévrech
-	- Příliš vysoký - nestabilita při přistání
-	- Typicky 5-7 %
-### Kontrola vibrací
-	- Motory nesmí:
-		- vibrovat
-		- drhnout
-		- přeskakovat
-
+    - DŮLEŽITÉ
+    - PŘED TESTY SUNDAT VRTULE
+    - Stabilizační reakce motorů
+    - Naklonit dron rukou
+    - Motory musí reagovat PROTI pohybu
+    - Pokud reagují špatně:
+        - špatná orientace FC
+        - špatný mixer
+        - hrozí instant flip of death
+    - Pořadí motorů
+    - Motor slider 1:
+        - musí roztočit správný motor
+        - Pokud ne:
+        - wiring problém
+        - resource remap
+    - Směr motorů
+        - Musí odpovídat diagramu
+    - Idle
+    - Typicky:
+        - 5–7 %
+    - Příliš nízký:
+        - desync
+        - padání při prudkých manévrech
+    - Příliš vysoký:
+        - tvrdé přistání
+        - nestabilita
+    - Kontrola vibrací
+    - Motory nesmí:
+        - vibrovat
+        - drhnout
+        - přeskakovat
+    - Kontrola teplot
+        - Motory nesmí být horké po krátkém běhu
 ## ESC konfigurace
-	- Pokud používáme DSHOT:
-		- ESC calibration se NEDĚLÁ
-	- Jinak:
-	- Pomocí:
-		- BLHeliSuite32
-		- Bluejay
-	- Nastavit:
-		- Motor timing - nechat default
-		- Beacon - pípání při neaktivitě
-		- Direction - Reversed/normal
-		- RPM telemetry - Zapnout, pokud použijeme bidirectional DSHOT
-
+    - Pokud používáme DSHOT
+    - ESC calibration se NEDĚLÁ
+    - ESC software
+        - BLHeliSuite32
+        - Bluejay
+    - Nastavení
+        - Motor timing:
+            - default
+        - Beacon:
+            - doporučeno
+        - Direction:
+            - normal/reversed
+        - RPM telemetry:
+            - pouze při bidirectional DSHOT
 ## Failsafe
-	- Nejdůležitější bezpečnostní věc
-	- Testovat:
-		- Bez vrtulí
-		- lehce throttle
-		- vypnout radio
-	- Správné chování:
-		- motory se zastaví
-	- Špatné chování:
-		- motory běží dál
-	- Nastavit Procedure: Drop nebo Land
-		
+    - Nejdůležitější bezpečnostní věc
+    - Test
+        - Bez vrtulí
+        - Lehce throttle
+        - Vypnout rádio
+        - Správné chování
+            - Motory se zastaví
+        - Špatné chování
+            - Motory běží dál
+        - Doporučení
+            - FPV quad bez GPS
+            - DROP
+        - Nedoporučeno
+            - LAND
 ## VTX
-	- Anténa MUSÍ být připojená
-### Output power
-	- Pro maiden:
-		- 25-100 mW
-### Pit mode
-	- Doporučeno při bench testech
-### Channel/Band
-	- Ověřit správný kanál v goggles
-## OSD
-	- Přidat:
-		- Average cell voltage
-		- flight mode
-
-## Filtry
-	- Nechat default
-	- Nic netunit před maidenem
-
-## OSD
-	- Doporučené prvky:
-		- Voltage
-		- mAH consumed
-		- RSSI
-		- LQ
-		- warnings
-		- timers
-		- craft name
-
+    - DŮLEŽITÉ
+    - Anténa MUSÍ být připojená
+    - Output power
+        - Maiden:
+            - 25–100 mW
+    - Pit mode
+        - Doporučeno při bench testech
+    - Channel/Band
+        - Ověřit správný kanál v goggles
+    - Filtry
+        - Nechat default
+        - Netunit před maidenem
 ## PID tuning
-	- Pro maiden: defaulty
-	- Nic neladit
-
-## Blackbox - DOPORUČENO
-	- Pokud to FC podporuje:
-		- zapnout blackbox
-
+    - Pro maiden:
+        - default
+    - Nic neladit
+## Vibrace
+    - iNav je citlivý na vibrace
+    - Ověřit:
+        - soft mounting FC
+        - vrtule
+        - motor bells
+        - resonance frame
+    - Hover nesmí:
+        - oscilovat
+        - toilet bowl efekt
+        - samovolně driftovat extrémně
+## Blackbox
+    - Pokud FC podporuje:
+        - zapnout blackbox logging
 ## CLI backup
 	- Po dokončení:
+	    - Příkaz: "set nav_extra_arming_safety = OFF" a "save"
+	    - Příkaz: "status"
 		- Příkaz: "dump all"
 
 # 4. ESC a motory:
