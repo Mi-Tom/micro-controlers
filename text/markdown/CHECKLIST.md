@@ -13,6 +13,15 @@
     save
     Bez tohoto příkazu dron nenastartuješ, protože bude stále marně hledat satelity.
 
+OPRAVA MOTORŮ:
+	- otevřít Mixer
+	- Output Mapping:
+		- nastavit S1 na Motor 3
+		- nastavit S2 na Motor 4
+		- nastavit S3 na Motor 1
+		- nastavit S4 na Motor 2
+	- POTÉ OTESTOVAT, JESTLI TO FUNGUJE
+
 # 3. Konfigurace ve flight controlleru:
 ## Před konfigurací
     - Sundat vrtule při všech bench testech
