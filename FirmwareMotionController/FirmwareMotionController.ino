@@ -387,6 +387,9 @@ AUX1Btn.lastState = AUX1CurrentState;
     int pot_value = analogRead(POTPIN);    
     float throttle_input = pot_value / 4095.0;
 
+    throttle_input = constrain(throttle_input, 0.24, 0.73);
+    map(0.24, 0.73, 0, 1);
+
     if (throttle_input > 0.48 && throttle_input < 0.52) 
     {
       throttle_input = 0.5;
