@@ -427,20 +427,16 @@ AUX1Btn.lastState = AUX1CurrentState;
 
   if (isEmergency) {
 
-  int leds = getBatteryLedCount();
-
   if (now - lastBlinkTime >= blinkInterval) {
     lastBlinkTime = now;
     blinkState = !blinkState;
+
+    for (int i = 0; i < ledCount; i++) {
+      digitalWrite(ledPins[i], blinkState);
+    }
   }
 
-  if (blinkState) {
-    showBatteryLeds(leds);
-  } else {
-    turnOffLeds();
-  }
-
-} 
+}
 else if (batBtn.offTime > 0 && now < batBtn.offTime) {
 
   int leds = getBatteryLedCount();
