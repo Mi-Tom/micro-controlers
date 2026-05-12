@@ -54,12 +54,17 @@ Button AUX1Btn = { 19, 0, HIGH, 0}; // - Žlutý kabel, AUX1 - ARM
 Button AUX2Btn = { 18, 0, HIGH, 0}; // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
 
 //---- Emergency mod ----
-unsigned long lastBlinkTime = 0;
-bool blinkState = false;
-const int blinkInterval = 300; // ms
-
 bool isEmergency = false;
 
+// ---- Emergency blink ----
+unsigned long lastBlinkTime = 0;
+bool blinkState = false;
+const int blinkInterval = 300;
+
+// ---- AUX1 LED animace ----
+bool AUX1Animating = false;
+
+//---- Emergency mod ----
 bool isAUX1 = false;
 bool isAUX2 = true;
 
@@ -84,6 +89,7 @@ int p = 0;
 
 // =====================TESTOVANI_NAPETI_BATERIE=====================
 int getBatteryLedCount() {
+
   int refRaw = analogRead(PIN_REF);
   int batRaw = analogRead(PIN_BAT);
 
@@ -97,35 +103,57 @@ int getBatteryLedCount() {
 }
 
 void showBatteryLeds(int ledsToLight) {
+
   for (int i = 0; i < ledCount; i++) {
-    if (i < ledsToLight) digitalWrite(ledPins[i], HIGH);
-    else digitalWrite(ledPins[i], LOW);
+
+    if (i < ledsToLight) {
+      digitalWrite(ledPins[i], HIGH);
+    } else {
+      digitalWrite(ledPins[i], LOW);
+    }
   }
 }
 
-void checkBattery() {
-  int refRaw = analogRead(PIN_REF);
-  int batRaw = analogRead(PIN_BAT);
+void showAux1Progress(bool turningOn, float progress) {
 
-  float voltage = (float(batRaw) / refRaw) * 2.5 * VOLT_RATIO;
-  int percent = constrain((voltage - 3.2) * 100, 0, 100);
+  progress = constrain(progress, 0.0, 1.0);
 
-  int ledsToLight = map(percent, 0, 100, 0, ledCount);
-  ledsToLight = constrain(ledsToLight, 1, ledCount);
+  int leds = progress * ledCount + 0.999;
 
-  for (int i = 0; i < ledsToLight; i++) {
-    digitalWrite(ledPins[i], HIGH);
+  if (turningOn) {
+
+    // ZAPÍNÁNÍ
+    // [1....]
+    // [11...]
+    // [111..]
+
+    for (int i = 0; i < ledCount; i++) {
+
+      if (i < leds) {
+        digitalWrite(ledPins[i], HIGH);
+      } else {
+        digitalWrite(ledPins[i], LOW);
+      }
+    }
+
+  } else {
+
+    // VYPÍNÁNÍ
+    // [11111]
+    // [1111.]
+    // [111..]
+
+    int ledsOn = ledCount - leds;
+
+    for (int i = 0; i < ledCount; i++) {
+
+      if (i < ledsOn) {
+        digitalWrite(ledPins[i], HIGH);
+      } else {
+        digitalWrite(ledPins[i], LOW);
+      }
+    }
   }
-
-  Serial.print("Napeti: ");
-  Serial.print(voltage);
-  Serial.println(" V");
-  Serial.print("Nabiti: ");
-  Serial.print(percent);
-  Serial.println(" %");
-  Serial.print("Ledky: ");
-  Serial.print(ledsToLight);
-  Serial.println(" LED");
 }
 
 
@@ -296,21 +324,39 @@ void loop() {
 
 // začátek stisku
 if (AUX1CurrentState == LOW && AUX1Btn.lastState == HIGH) {
+
   AUX1Btn.lastPush = now;
   AUX1LongPressDone = false;
+  AUX1Animating = true;
 }
 
 // držení tlačítka
 if (AUX1CurrentState == LOW) {
-  if (!AUX1LongPressDone && (now - AUX1Btn.lastPush > 1000)) {
+
+  float holdProgress = (now - AUX1Btn.lastPush) / 1000.0;
+
+  // animace LED
+  showAux1Progress(!isAUX1, holdProgress);
+
+  // dokončení long press
+  if (!AUX1LongPressDone && (now - AUX1Btn.lastPush >= 1000)) {
+
     isAUX1 = !isAUX1;
-    AUX1LongPressDone = true;   // zabrání dalším přepnutím
+
+    AUX1LongPressDone = true;
+    AUX1Animating = false;
+
+    turnOffLeds();
   }
 }
 
-// puštění tlačítka resetuje stav
+// puštění tlačítka
 if (AUX1CurrentState == HIGH && AUX1Btn.lastState == LOW) {
+
   AUX1LongPressDone = false;
+  AUX1Animating = false;
+
+  turnOffLeds();
 }
 
 AUX1Btn.lastState = AUX1CurrentState;
@@ -388,7 +434,7 @@ AUX1Btn.lastState = AUX1CurrentState;
     float throttle_input = pot_value / 4095.0;
 
     throttle_input = constrain(throttle_input, 0.24, 0.73);
-    map(0.24, 0.73, 0, 1);
+    throttle_input = (throttle_input - 0.24) / (0.73 - 0.24);
 
     if (throttle_input > 0.48 && throttle_input < 0.52) 
     {
@@ -421,34 +467,37 @@ AUX1Btn.lastState = AUX1CurrentState;
     }
   }
   batBtn.lastState = batCurrentState;
+// ================= LED MANAGEMENT =================
 
-  // Automatické vypnutí LED vázané na tlačítko LED
-  if (batBtn.offTime > 0 && now >= batBtn.offTime) {
-    turnOffLeds();
-    batBtn.offTime = 0;
-  }
+if (!AUX1Animating) {
 
+  // ---- Emergency blikání ----
   if (isEmergency) {
 
-  if (now - lastBlinkTime >= blinkInterval) {
-    lastBlinkTime = now;
-    blinkState = !blinkState;
+    if (now - lastBlinkTime >= blinkInterval) {
 
-    for (int i = 0; i < ledCount; i++) {
-      digitalWrite(ledPins[i], blinkState);
+      lastBlinkTime = now;
+      blinkState = !blinkState;
+
+      for (int i = 0; i < ledCount; i++) {
+        digitalWrite(ledPins[i], blinkState);
+      }
     }
   }
 
-}
-else if (batBtn.offTime > 0 && now < batBtn.offTime) {
+  // ---- Indikace baterky ----
+  else if (batBtn.offTime > 0 && now < batBtn.offTime) {
 
-  int leds = getBatteryLedCount();
-  showBatteryLeds(leds);
+    int leds = getBatteryLedCount();
+    showBatteryLeds(leds);
+  }
 
-} 
-else {
-  turnOffLeds();
-  batBtn.offTime = 0;
+  // ---- Nic nesvítí ----
+  else {
+
+    turnOffLeds();
+    batBtn.offTime = 0;
+  }
 }
   delay(5);
 }
