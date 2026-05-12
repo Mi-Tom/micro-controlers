@@ -9,9 +9,9 @@
 #define MAXYAWANGLE 60.0
 #define BUTTON_DELAY 50
 
-#define POTPIN 33   // Pin pro potenciomentr
-#define PIN_BAT 32  // Pin pro dělič baterie
-#define PIN_REF 35  // Pin pro LM285 (2.5V)
+#define POTPIN 33     // Pin pro potenciomentr
+#define PIN_BAT 32    // Pin pro dělič baterie
+#define PIN_REF 35    // Pin pro LM285 (2.5V)
 #define CALIB_BTN 23  // Pin pro kalibrovaci tlacitko
 
 //---- Kalibrace ---
@@ -52,8 +52,8 @@ struct Button {
 Button batBtn = { 27, 0, HIGH, 0 };
 Button emeBtn = { 26, 0, HIGH, 0 };
 
-Button AUX1Btn = { 19, 0, HIGH, 0}; // - Žlutý kabel, AUX1 - ARM
-Button AUX2Btn = { 18, 0, HIGH, 0}; // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
+Button AUX1Btn = { 19, 0, HIGH, 0 };  // - Žlutý kabel, AUX1 - ARM
+Button AUX2Btn = { 18, 0, HIGH, 0 };  // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
 
 //---- Emergency mod ----
 bool isEmergency = false;
@@ -63,14 +63,16 @@ unsigned long lastBlinkTime = 0;
 bool blinkState = false;
 const int blinkInterval = 300;
 
-// ---- AUX1 LED animace ----
+// ---- AUX LED animace ----
 bool AUX1Animating = false;
+bool AUX2Animating = false;
 
 //---- Emergency mod ----
 bool isAUX1 = false;
 bool isAUX2 = true;
 
 bool AUX1LongPressDone = false;
+bool AUX2LongPressDone = false;
 
 //---- ESP NOW komunikace ----
 uint8_t broadcastAddress[] = { 0x08, 0xb6, 0x1f, 0xb8, 0x4c, 0x50 };  //MAC adresa
@@ -158,6 +160,65 @@ void showAux1Progress(bool turningOn, float progress) {
   }
 }
 
+void showAux2Progress(bool turningOn, float progress) {
+
+  progress = constrain(progress, 0.0, 1.0);
+
+  int step = constrain(progress * 4.0, 0, 3);
+
+  // nejdřív všechno zhasnout
+  turnOffLeds();
+
+  if (turningOn) {
+
+    // ZAPÍNÁNÍ
+    // [.....]
+    // [..1..]
+    // [.111.]
+    // [11111]
+
+    if (step >= 1) {
+      digitalWrite(ledPins[2], HIGH);
+    }
+
+    if (step >= 2) {
+      digitalWrite(ledPins[1], HIGH);
+      digitalWrite(ledPins[3], HIGH);
+    }
+
+    if (step >= 3) {
+      digitalWrite(ledPins[0], HIGH);
+      digitalWrite(ledPins[4], HIGH);
+    }
+
+  } else {
+
+    // VYPÍNÁNÍ
+    // [11111]
+    // [.111.]
+    // [..1..]
+    // [.....]
+
+    // začátek = vše zapnuto
+    for (int i = 0; i < ledCount; i++) {
+      digitalWrite(ledPins[i], HIGH);
+    }
+
+    if (step >= 1) {
+      digitalWrite(ledPins[0], LOW);
+      digitalWrite(ledPins[4], LOW);
+    }
+
+    if (step >= 2) {
+      digitalWrite(ledPins[1], LOW);
+      digitalWrite(ledPins[3], LOW);
+    }
+
+    if (step >= 3) {
+      digitalWrite(ledPins[2], LOW);
+    }
+  }
+}
 
 void turnOffLeds() {
   for (int i = 0; i < ledCount; i++) {
@@ -204,20 +265,14 @@ void printout_data(float roll_input, float pitch_input, float yaw_input, float t
     //Serial.println(pot_value);
     Serial.print("Throttle:\t");
     Serial.println(throttle_input);
-    if(a1)
-    {
+    if (a1) {
       Serial.print("AUX1 = TRUE\t|\t");
-    }
-    else
-    {
+    } else {
       Serial.print("AUX1 = FALSE\t|\t");
     }
-    if(a2)
-    {
+    if (a2) {
       Serial.println("AUX2 = TRUE");
-    }
-    else
-    {
+    } else {
       Serial.println("AUX2 = FALSE");
     }
     Serial.println("---------------");
@@ -324,61 +379,87 @@ void loop() {
   // AUX1 tlacitko
   bool AUX1CurrentState = digitalRead(AUX1Btn.pin);
 
-// začátek stisku
-if (AUX1CurrentState == LOW && AUX1Btn.lastState == HIGH) {
+  // začátek stisku
+  if (AUX1CurrentState == LOW && AUX1Btn.lastState == HIGH) {
 
-  AUX1Btn.lastPush = now;
-  AUX1LongPressDone = false;
-  AUX1Animating = true;
-}
-
-// držení tlačítka
-if (AUX1CurrentState == LOW) {
-
-  float holdProgress = (now - AUX1Btn.lastPush) / 1000.0;
-
-  // animace jen dokud neni hotovy long press
-  if (!AUX1LongPressDone) {
-    showAux1Progress(!isAUX1, holdProgress);
+    AUX1Btn.lastPush = now;
+    AUX1LongPressDone = false;
+    AUX1Animating = true;
   }
 
-  // dokončení long press
-  if (!AUX1LongPressDone && (now - AUX1Btn.lastPush >= 1000)) {
+  // držení tlačítka
+  if (AUX1CurrentState == LOW) {
 
-    isAUX1 = !isAUX1;
+    float holdProgress = (now - AUX1Btn.lastPush) / 1000.0;
 
-    AUX1LongPressDone = true;
+    // animace jen dokud neni hotovy long press
+    if (!AUX1LongPressDone) {
+      showAux1Progress(!isAUX1, holdProgress);
+    }
+
+    // dokončení long press
+    if (!AUX1LongPressDone && (now - AUX1Btn.lastPush >= 1000)) {
+
+      isAUX1 = !isAUX1;
+
+      AUX1LongPressDone = true;
+      AUX1Animating = false;
+
+      turnOffLeds();
+    }
+  }
+
+  // puštění tlačítka
+  if (AUX1CurrentState == HIGH && AUX1Btn.lastState == LOW) {
+
+    AUX1LongPressDone = false;
     AUX1Animating = false;
 
     turnOffLeds();
   }
-}
 
-// puštění tlačítka
-if (AUX1CurrentState == HIGH && AUX1Btn.lastState == LOW) {
-
-  AUX1LongPressDone = false;
-  AUX1Animating = false;
-
-  turnOffLeds();
-}
-
-AUX1Btn.lastState = AUX1CurrentState;
+  AUX1Btn.lastState = AUX1CurrentState;
 
   // AUX2 tlacitko
   bool AUX2CurrentState = digitalRead(AUX2Btn.pin);
 
-  if (AUX2Btn.lastState == HIGH && AUX2CurrentState == LOW) {
-    if (now - AUX2Btn.lastPush > BUTTON_DELAY) {
-      AUX2Btn.lastPush = now;
+  // začátek stisku
+  if (AUX2CurrentState == LOW && AUX2Btn.lastState == HIGH) {
+
+    AUX2Btn.lastPush = now;
+    AUX2LongPressDone = false;
+    AUX2Animating = true;
+  }
+
+  // držení tlačítka
+  if (AUX2CurrentState == LOW) {
+
+    float holdProgress = (now - AUX2Btn.lastPush) / 1000.0;
+
+    // animace jen dokud neni hotovy long press
+    if (!AUX2LongPressDone) {
+      showAux2Progress(!isAUX2, holdProgress);
+    }
+
+    // dokončení long press
+    if (!AUX2LongPressDone && (now - AUX2Btn.lastPush >= 1000)) {
+
       isAUX2 = !isAUX2;
 
-      if (isAUX2) {
-        Serial.print("AUX2!!!!");
-      } else {
-        Serial.println("NENI AUX2!!!!");
-      }
+      AUX2LongPressDone = true;
+      AUX2Animating = false;
+
+      turnOffLeds();
     }
+  }
+
+  // puštění tlačítka
+  if (AUX2CurrentState == HIGH && AUX2Btn.lastState == LOW) {
+
+    AUX2LongPressDone = false;
+    AUX2Animating = false;
+
+    turnOffLeds();
   }
   AUX2Btn.lastState = AUX2CurrentState;
 
@@ -434,14 +515,13 @@ AUX1Btn.lastState = AUX1CurrentState;
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
     // Pontenciometr
-    int pot_value = analogRead(POTPIN);    
+    int pot_value = analogRead(POTPIN);
     float throttle_input = pot_value / 4095.0;
 
     throttle_input = constrain(throttle_input, 0.24, 0.73);
     throttle_input = (throttle_input - 0.24) / (0.73 - 0.24);
 
-    if (throttle_input > 0.48 && throttle_input < 0.52) 
-    {
+    if (throttle_input > 0.48 && throttle_input < 0.52) {
       throttle_input = 0.5;
     }
 
@@ -476,35 +556,35 @@ AUX1Btn.lastState = AUX1CurrentState;
     }
   }
   batBtn.lastState = batCurrentState;
-// ================= LED MANAGEMENT =================
+  // ================= LED MANAGEMENT =================
 
-if (!AUX1Animating) {
+  if (!AUX1Animating && !AUX2Animating) {
 
-  // ---- Emergency blikání ----
-  if (isEmergency) {
+    // ---- Emergency blikání ----
+    if (isEmergency) {
 
-    if (now - lastBlinkTime >= blinkInterval) {
+      if (now - lastBlinkTime >= blinkInterval) {
 
-      lastBlinkTime = now;
-      blinkState = !blinkState;
+        lastBlinkTime = now;
+        blinkState = !blinkState;
 
-      for (int i = 0; i < ledCount; i++) {
-        digitalWrite(ledPins[i], blinkState);
+        for (int i = 0; i < ledCount; i++) {
+          digitalWrite(ledPins[i], blinkState);
+        }
       }
     }
-  }
 
-  // ---- Indikace baterky ----
-  else if (batBtn.offTime > 0 && now < batBtn.offTime) {
-    showBatteryLeds(batteryLedValue);
-  }
+    // ---- Indikace baterky ----
+    else if (batBtn.offTime > 0 && now < batBtn.offTime) {
+      showBatteryLeds(batteryLedValue);
+    }
 
-  // ---- Nic nesvítí ----
-  else {
+    // ---- Nic nesvítí ----
+    else {
 
-    turnOffLeds();
-    batBtn.offTime = 0;
+      turnOffLeds();
+      batBtn.offTime = 0;
+    }
   }
-}
   delay(5);
 }
