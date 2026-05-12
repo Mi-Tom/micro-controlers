@@ -39,6 +39,8 @@ const float VOLT_RATIO = (R1 + R2) / R2;
 int ledPins[] = { 4, 16, 2, 0, 15 };
 int ledCount = 5;
 
+int batteryLedValue = 0;
+
 //---- Tlacitka ----
 struct Button {
   int pin;
@@ -335,8 +337,10 @@ if (AUX1CurrentState == LOW) {
 
   float holdProgress = (now - AUX1Btn.lastPush) / 1000.0;
 
-  // animace LED
-  showAux1Progress(!isAUX1, holdProgress);
+  // animace jen dokud neni hotovy long press
+  if (!AUX1LongPressDone) {
+    showAux1Progress(!isAUX1, holdProgress);
+  }
 
   // dokončení long press
   if (!AUX1LongPressDone && (now - AUX1Btn.lastPush >= 1000)) {
@@ -461,9 +465,14 @@ AUX1Btn.lastState = AUX1CurrentState;
 
   if (batBtn.lastState == HIGH && batCurrentState == LOW) {
     if (now - batBtn.lastPush > BUTTON_DELAY) {
+
       batBtn.lastPush = now;
 
-      batBtn.offTime = now + 2000;  // normální zobrazení na 2s
+      // načti baterku jen jednou
+      batteryLedValue = getBatteryLedCount();
+
+      // zobrazuj 2 sekundy
+      batBtn.offTime = now + 2000;
     }
   }
   batBtn.lastState = batCurrentState;
@@ -487,9 +496,7 @@ if (!AUX1Animating) {
 
   // ---- Indikace baterky ----
   else if (batBtn.offTime > 0 && now < batBtn.offTime) {
-
-    int leds = getBatteryLedCount();
-    showBatteryLeds(leds);
+    showBatteryLeds(batteryLedValue);
   }
 
   // ---- Nic nesvítí ----
