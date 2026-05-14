@@ -9,10 +9,9 @@
 #define MAXYAWANGLE 60.0
 #define BUTTON_DELAY 50
 
-#define POTPIN 33     // Pin pro potenciomentr
-#define PIN_BAT 32    // Pin pro dělič baterie
-#define PIN_REF 35    // Pin pro LM285 (2.5V)
-#define CALIB_BTN 23  // Pin pro kalibrovaci tlacitko
+#define POTPIN 33   // Pin pro potenciomentr
+#define PIN_BAT 32  // Pin pro dělič baterie
+#define PIN_REF 35  // Pin pro LM285 (2.5V)
 
 //---- Kalibrace ---
 float rollOffset = 0;
@@ -48,6 +47,8 @@ struct Button {
   bool lastState;
   unsigned long offTime;
 };
+
+Button clbBtn = { 23, 0, HIGH, 0 };  //kalibracni tlacitko
 
 Button batBtn = { 27, 0, HIGH, 0 };
 Button emeBtn = { 26, 0, HIGH, 0 };
@@ -296,7 +297,7 @@ void calibrateController() {
 
 void setup() {
   // Kalibracni tlacitko
-  pinMode(CALIB_BTN, INPUT_PULLUP);
+  pinMode(clbBtn.pin, INPUT_PULLUP);
 
   // Akcelerometr a Gyroskop
   Wire.begin(21, 22);  // Inicializace I2C na pinech ESP32
@@ -372,10 +373,16 @@ void loop() {
   emeBtn.lastState = emeCurrentState;
 
   // Kalibrace
-  if (digitalRead(CALIB_BTN) == LOW) {
-    calibrateController();
-    delay(500);
+  bool clbCurrentState = digitalRead(clbBtn.pin);
+
+  if (clbBtn.lastState == HIGH && clbCurrentState == LOW) {
+    if (now - clbBtn.lastPush > BUTTON_DELAY) {
+      clbBtn.lastPush = now;
+      calibrateController();
+    }
   }
+  clbBtn.lastState = clbCurrentState;
+
   // AUX1 tlacitko
   bool AUX1CurrentState = digitalRead(AUX1Btn.pin);
 
