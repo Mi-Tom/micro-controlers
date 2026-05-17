@@ -11,7 +11,6 @@
 
 #define POTPIN 33   // Pin pro potenciomentr
 #define PIN_BAT 32  // Pin pro dělič baterie
-#define PIN_REF 35  // Pin pro LM285 (2.5V)
 
 //---- Kalibrace ---
 float rollOffset = 0;
@@ -35,7 +34,7 @@ const float R1 = 100000.0;  //100K
 const float R2 = 100000.0;
 const float VOLT_RATIO = (R1 + R2) / R2;
 
-int ledPins[] = { 13, 15, 12, 4, 2 }; // Jde od cervene po zelenou
+int ledPins[] = { 13, 12, 15, 2, 4 }; // Jde od cervene po zelenou
 int ledCount = 5;
 
 int batteryLedValue = 0;
@@ -93,16 +92,33 @@ struct_message message;
 int p = 0;
 
 // =====================TESTOVANI_NAPETI_BATERIE=====================
+
 int getBatteryLedCount() {
 
-  int refRaw = analogRead(PIN_REF);
-  int batRaw = analogRead(PIN_BAT);
+  // průměrování ADC kvůli šumu ESP32
+  int samples = 10;
+  uint32_t sum = 0;
 
-  float voltage = (float(batRaw) / refRaw) * 2.5 * VOLT_RATIO;
-  int percent = constrain((voltage - 3.2) * 100, 0, 100);
+  for (int i = 0; i < samples; i++) {
+    sum += analogRead(PIN_BAT);
+  }
 
-  int ledsToLight = map(percent, 0, 100, 0, ledCount);
-  ledsToLight = constrain(ledsToLight, 1, ledCount);
+  float batRaw = sum / (float)samples;
+
+  // převod ADC -> napětí na pinu
+  float vout = (batRaw / 4095.0) * 3.3;
+
+  // dělič 1:1 (100k / 100k)
+  float vin = vout * 2.0;
+
+  // 1S Li-ion: 3.0V = 0%, 4.2V = 100%
+  int percent = (int)((vin - 3.0) * 100.0 / 1.2);
+
+  percent = constrain(percent, 0, 100);
+
+  // počet LED
+  int ledsToLight = (percent * ledCount) / 100;
+  ledsToLight = constrain(ledsToLight, 0, ledCount);
 
   return ledsToLight;
 }
