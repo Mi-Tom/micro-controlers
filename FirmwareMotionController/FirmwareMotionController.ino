@@ -112,9 +112,9 @@ void showBatteryLeds(int ledsToLight) {
   for (int i = 0; i < ledCount; i++) {
 
     if (i < ledsToLight) {
-      digitalWrite(ledPins[i], HIGH);
-    } else {
       digitalWrite(ledPins[i], LOW);
+    } else {
+      digitalWrite(ledPins[i], HIGH);
     }
   }
 }
@@ -135,9 +135,9 @@ void showAux1Progress(bool turningOn, float progress) {
     for (int i = 0; i < ledCount; i++) {
 
       if (i < leds) {
-        digitalWrite(ledPins[i], HIGH);
-      } else {
         digitalWrite(ledPins[i], LOW);
+      } else {
+        digitalWrite(ledPins[i], HIGH);
       }
     }
 
@@ -153,9 +153,9 @@ void showAux1Progress(bool turningOn, float progress) {
     for (int i = 0; i < ledCount; i++) {
 
       if (i < ledsOn) {
-        digitalWrite(ledPins[i], HIGH);
-      } else {
         digitalWrite(ledPins[i], LOW);
+      } else {
+        digitalWrite(ledPins[i], HIGH);
       }
     }
   }
@@ -179,17 +179,17 @@ void showAux2Progress(bool turningOn, float progress) {
     // [11111]
 
     if (step >= 1) {
-      digitalWrite(ledPins[2], HIGH);
+      digitalWrite(ledPins[2], LOW);
     }
 
     if (step >= 2) {
-      digitalWrite(ledPins[1], HIGH);
-      digitalWrite(ledPins[3], HIGH);
+      digitalWrite(ledPins[1], LOW);
+      digitalWrite(ledPins[3], LOW);
     }
 
     if (step >= 3) {
-      digitalWrite(ledPins[0], HIGH);
-      digitalWrite(ledPins[4], HIGH);
+      digitalWrite(ledPins[0], LOW);
+      digitalWrite(ledPins[4], LOW);
     }
 
   } else {
@@ -202,28 +202,28 @@ void showAux2Progress(bool turningOn, float progress) {
 
     // začátek = vše zapnuto
     for (int i = 0; i < ledCount; i++) {
-      digitalWrite(ledPins[i], HIGH);
+      digitalWrite(ledPins[i], LOW);
     }
 
     if (step >= 1) {
-      digitalWrite(ledPins[0], LOW);
-      digitalWrite(ledPins[4], LOW);
+      digitalWrite(ledPins[0], HIGH);
+      digitalWrite(ledPins[4], HIGH);
     }
 
     if (step >= 2) {
-      digitalWrite(ledPins[1], LOW);
-      digitalWrite(ledPins[3], LOW);
+      digitalWrite(ledPins[1], HIGH);
+      digitalWrite(ledPins[3], HIGH);
     }
 
     if (step >= 3) {
-      digitalWrite(ledPins[2], LOW);
+      digitalWrite(ledPins[2], HIGH);
     }
   }
 }
 
 void turnOffLeds() {
   for (int i = 0; i < ledCount; i++) {
-    digitalWrite(ledPins[i], LOW);
+    digitalWrite(ledPins[i], HIGH);
   }
 }
 
