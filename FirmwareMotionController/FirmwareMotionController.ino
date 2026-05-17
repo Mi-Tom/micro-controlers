@@ -35,7 +35,7 @@ const float R1 = 100000.0;  //100K
 const float R2 = 100000.0;
 const float VOLT_RATIO = (R1 + R2) / R2;
 
-int ledPins[] = { 4, 16, 2, 0, 15 };
+int ledPins[] = { 13, 15, 12, 4, 2 }; // Jde od cervene po zelenou
 int ledCount = 5;
 
 int batteryLedValue = 0;
@@ -50,8 +50,8 @@ struct Button {
 
 Button clbBtn = { 23, 0, HIGH, 0 };  //kalibracni tlacitko
 
-Button batBtn = { 27, 0, HIGH, 0 };
-Button emeBtn = { 26, 0, HIGH, 0 };
+Button batBtn = { 14, 0, HIGH, 0 };
+Button emeBtn = { 27, 0, HIGH, 0 };
 
 Button AUX1Btn = { 19, 0, HIGH, 0 };  // - Žlutý kabel, AUX1 - ARM
 Button AUX2Btn = { 18, 0, HIGH, 0 };  // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
