@@ -34,7 +34,13 @@ const float R1 = 100000.0;  //100K
 const float R2 = 100000.0;
 const float VOLT_RATIO = (R1 + R2) / R2;
 
-int ledPins[] = { 13, 12, 15, 2, 4 }; // Jde od cervene po zelenou
+// ---- JOYSTICK THROTTLE KALIBRACE ----
+const float JOY_CENTER = 0.32;    // střed (změřená klidová hodnota)
+const float JOY_DEADZONE = 0.02;  // mrtvá zóna kolem středu
+float joy = 0;
+float joyCenter = 0;
+
+int ledPins[] = { 13, 12, 15, 2, 4 };  // Jde od cervene po zelenou
 int ledCount = 5;
 
 int batteryLedValue = 0;
@@ -312,6 +318,15 @@ void calibrateController() {
 // ==============================SETUP===============================
 
 void setup() {
+  // kalibrace středu joysticku
+  long sum = 0;
+  for (int i = 0; i < 50; i++) {
+    sum += analogRead(POTPIN);
+    delay(5);
+  }
+
+  joyCenter = (sum / 50.0) / 4095.0;
+
   // Kalibracni tlacitko
   pinMode(clbBtn.pin, INPUT_PULLUP);
 
@@ -537,17 +552,42 @@ void loop() {
     pitch_input = constrain(pitch_input, -1.0, 1.0);
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
-    // Pontenciometr
-    int pot_value = analogRead(POTPIN);
-    float throttle_input = pot_value / 4095.0;
 
-    throttle_input = constrain(throttle_input, 0.24, 0.73);
-    throttle_input = (throttle_input - 0.24) / (0.73 - 0.24);
+    // ---- JOYSTICK THROTTLE ----
+    int raw = analogRead(POTPIN);
 
-    if (throttle_input > 0.48 && throttle_input < 0.52) {
+    // normalizace
+    float joyRaw = raw / 4095.0;
+
+    // filtr
+    joy = 0.85 * joy + 0.15 * joyRaw;
+
+    // clamp
+    joy = constrain(joy, 0.0, 1.0);
+
+    // použij kalibrovaný střed
+    float center = joyCenter;
+    const float deadzone = 0.03;
+
+    float throttle_input;
+
+    // STŘED → vždy 0.5
+    if (fabs(joy - center) < deadzone) {
       throttle_input = 0.5;
     }
 
+    // horní půlka
+    else if (joy > center) {
+      throttle_input = 0.5 + ((joy - center) / (1.0 - center)) * 0.5;
+    }
+
+    // dolní půlka
+    else {
+      throttle_input = 0.5 - ((center - joy) / center) * 0.5;
+    }
+
+    // clamp
+    throttle_input = constrain(throttle_input, 0.0, 1.0);
     // Vypis
     printout_data(roll_input, pitch_input, yaw_input, throttle_input, isAUX1, isAUX2);
 
