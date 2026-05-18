@@ -11,6 +11,7 @@
 
 #define POTPIN 33   // Pin pro potenciomentr
 #define PIN_BAT 32  // Pin pro dělič baterie
+#define PIN_REF 35  //Pin pro ref napeti
 
 //---- Kalibrace ---
 float rollOffset = 0;
@@ -30,8 +31,8 @@ float yaw_input_prev = 0.0;
 static float yaw_angle = 0;
 
 //---- Baterka ----
-const float R1 = 100000.0;  //100K
-const float R2 = 100000.0;
+const float R1 = 22000.0;  //100K
+const float R2 = 22000.0;
 const float VOLT_RATIO = (R1 + R2) / R2;
 
 // ---- JOYSTICK THROTTLE KALIBRACE ----
@@ -100,8 +101,8 @@ int p = 0;
 // =====================TESTOVANI_NAPETI_BATERIE=====================
 
 int getBatteryLedCount() {
+  float refRaw = analogRead(PIN_REF);
 
-  // průměrování ADC kvůli šumu ESP32
   int samples = 10;
   uint32_t sum = 0;
 
@@ -111,23 +112,76 @@ int getBatteryLedCount() {
 
   float batRaw = sum / (float)samples;
 
-  // převod ADC -> napětí na pinu
-  float vout = (batRaw / 4095.0) * 3.3;
+  float voltage = (batRaw/refRaw)*2.5*VOLT_RATIO;
 
-  // dělič 1:1 (100k / 100k)
-  float vin = vout * 2.0;
+  int percent = constrain((voltage -3.2 )*100, 0 , 100);
 
-  // 1S Li-ion: 3.0V = 0%, 4.2V = 100%
-  int percent = (int)((vin - 3.0) * 100.0 / 1.2);
+  int ledsToLight = 0;
 
-  percent = constrain(percent, 0, 100);
+  // HYSTEREZE + "plné držení"
+  if (percent >= 80) {
+    ledsToLight = 5;
+  }
+  else if (percent >= 60) {
+    ledsToLight = 4;
+  }
+  else if (percent >= 40) {
+    ledsToLight = 3;
+  }
+  else if (percent >= 20) {
+    ledsToLight = 2;
+  }
+  else if (percent >= 0) {
+    ledsToLight = 1;
+  }
+  else {
+    ledsToLight = 0;
+  }
 
-  // počet LED
-  int ledsToLight = (percent * ledCount) / 100;
-  ledsToLight = constrain(ledsToLight, 0, ledCount);
-
-  return ledsToLight;
+  return constrain(ledsToLight, 0, ledCount);
 }
+
+/*int getBatteryLedCount() {
+
+  int samples = 1;
+  uint32_t sum = 0;
+
+  for (int i = 0; i < samples; i++) {
+    sum += analogRead(PIN_BAT);
+  }
+
+  float batRaw = sum / (float)samples;
+
+  float vout = (batRaw / 4095.0) * 3.3;
+  float vin = vout * VOLT_RATIO;
+
+  Serial.print("BATTERY: ");
+  Serial.println(vin);
+
+  int ledsToLight = 0;
+
+  // HYSTEREZE + "plné držení"
+  if (vin >= 4.10) {
+    ledsToLight = 5;
+  }
+  else if (vin >= 3.95) {
+    ledsToLight = 4;
+  }
+  else if (vin >= 3.80) {
+    ledsToLight = 3;
+  }
+  else if (vin >= 3.65) {
+    ledsToLight = 2;
+  }
+  else if (vin >= 3.50) {
+    ledsToLight = 1;
+  }
+  else {
+    ledsToLight = 0;
+  }
+
+  return constrain(ledsToLight, 0, ledCount);
+}*/
 
 void showBatteryLeds(int ledsToLight) {
 
@@ -318,6 +372,10 @@ void calibrateController() {
 // ==============================SETUP===============================
 
 void setup() {
+  // Potenciometr
+  analogReadResolution(12);        // 0–4095
+  analogSetAttenuation(ADC_11db);  // rozsah cca 0–3.3V
+
   // kalibrace středu joysticku
   long sum = 0;
   for (int i = 0; i < 50; i++) {
@@ -342,9 +400,7 @@ void setup() {
 
   lastTime = micros();
 
-  // Potenciometr
-  analogReadResolution(12);        // 0–4095
-  analogSetAttenuation(ADC_11db);  // rozsah cca 0–3.3V
+
 
   // Baterka
   for (int i = 0; i < ledCount; i++) {
@@ -552,8 +608,42 @@ void loop() {
     pitch_input = constrain(pitch_input, -1.0, 1.0);
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
+// ---- JOYSTICK THROTTLE (MAPOVÁNÍ -1/1 -> 0/1) ----
+int raw = analogRead(POTPIN);
 
-    // ---- JOYSTICK THROTTLE ----
+// 1. Normalizace surového čtení na rozsah 0.0 až 1.0
+float joyRaw = raw / 4095.0;
+
+// 2. Lehký filtr pro vyhlazení šumu potenciometru
+joy = 0.85 * joy + 0.15 * joyRaw;
+
+// 3. Převod na tvůj rozsah -1.0 až 1.0 (vycházíme z tvé kalibrace středu)
+// joyCenter je hodnota, kterou jsi změřil v setupu (cca 0.32)
+float mapped_input;
+if (joy >= joyCenter) {
+    mapped_input = (joy - joyCenter) / (1.0 - joyCenter); // Horní polovina (0 až 1)
+} else {
+    mapped_input = (joy - joyCenter) / joyCenter;        // Dolní polovina (0 až -1)
+}
+
+// 4. MAPOVÁNÍ PRO INAV ALTHOLD (Cíl: 0.0 až 1.0, střed 0.5)
+const float deadzone = 0.05; // Mrtvá zóna kolem fyzického středu
+float final_throttle;
+
+if (abs(mapped_input) < deadzone) {
+    final_throttle = 0.5;   // PŘESNÝ STŘED = 1500uS v INAV (Držení výšky)
+} else {
+    // Matematický převod: (-1.0 až 1.0) -> (0.0 až 1.0)
+    final_throttle = (mapped_input + 1.0) / 2.0;
+}
+
+// Pojistka rozsahu
+final_throttle = constrain(final_throttle, 0.0, 1.0);
+
+// ---- VÝSTUP ----
+// Teď už posíláš final_throttle do výpisu i do ESP-NOW
+
+    /*// ---- JOYSTICK THROTTLE ----
     int raw = analogRead(POTPIN);
 
     // normalizace
@@ -587,12 +677,12 @@ void loop() {
     }
 
     // clamp
-    throttle_input = constrain(throttle_input, 0.0, 1.0);
+    throttle_input = constrain(throttle_input, 0.0, 1.0);*/
     // Vypis
-    printout_data(roll_input, pitch_input, yaw_input, throttle_input, isAUX1, isAUX2);
+    printout_data(roll_input, pitch_input, yaw_input, final_throttle, isAUX1, isAUX2);
 
     // ESP-NOW
-    ESPNOW_send(roll_input, pitch_input, yaw_input, throttle_input, isAUX1, isAUX2);
+    ESPNOW_send(roll_input, pitch_input, yaw_input, final_throttle, isAUX1, isAUX2);
 
   } else {
     // Vypis
