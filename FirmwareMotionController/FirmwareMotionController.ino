@@ -627,57 +627,20 @@ if (joy >= joyCenter) {
 }
 
 // 4. MAPOVÁNÍ PRO INAV ALTHOLD (Cíl: 0.0 až 1.0, střed 0.5)
-const float deadzone = 0.05; // Mrtvá zóna kolem fyzického středu
+const float deadzone = 0.005; // Mrtvá zóna kolem fyzického středu
 float final_throttle;
 
 if (abs(mapped_input) < deadzone) {
-    final_throttle = 0.5;   // PŘESNÝ STŘED = 1500uS v INAV (Držení výšky)
+    final_throttle = 0.1;   // PŘESNÝ STŘED = 1500uS v INAV (Držení výšky)
 } else {
     // Matematický převod: (-1.0 až 1.0) -> (0.0 až 1.0)
-    final_throttle = (mapped_input + 1.0) / 2.0;
+    final_throttle = ((mapped_input + 1.0) / 2.0)*0.2;
 }
 
 // Pojistka rozsahu
-final_throttle = constrain(final_throttle, 0.0, 1.0);
+final_throttle = constrain(final_throttle, 0.0, 0.2);
 
-// ---- VÝSTUP ----
-// Teď už posíláš final_throttle do výpisu i do ESP-NOW
 
-    /*// ---- JOYSTICK THROTTLE ----
-    int raw = analogRead(POTPIN);
-
-    // normalizace
-    float joyRaw = raw / 4095.0;
-
-    // filtr
-    joy = 0.85 * joy + 0.15 * joyRaw;
-
-    // clamp
-    joy = constrain(joy, 0.0, 1.0);
-
-    // použij kalibrovaný střed
-    float center = joyCenter;
-    const float deadzone = 0.03;
-
-    float throttle_input;
-
-    // STŘED → vždy 0.5
-    if (fabs(joy - center) < deadzone) {
-      throttle_input = 0.5;
-    }
-
-    // horní půlka
-    else if (joy > center) {
-      throttle_input = 0.5 + ((joy - center) / (1.0 - center)) * 0.5;
-    }
-
-    // dolní půlka
-    else {
-      throttle_input = 0.5 - ((center - joy) / center) * 0.5;
-    }
-
-    // clamp
-    throttle_input = constrain(throttle_input, 0.0, 1.0);*/
     // Vypis
     printout_data(roll_input, pitch_input, yaw_input, final_throttle, isAUX1, isAUX2);
 
