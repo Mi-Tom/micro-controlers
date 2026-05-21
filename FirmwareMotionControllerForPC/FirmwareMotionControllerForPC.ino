@@ -1,8 +1,7 @@
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Wire.h"
-#include <esp_now.h>
-#include <WiFi.h>
+#include <BleGamepad.h>
 
 #define RADTODEG 57.2958
 #define MAXTILT 35.0
@@ -12,6 +11,9 @@
 #define POTPIN 33   // Pin pro potenciomentr
 #define PIN_BAT 32  // Pin pro dělič baterie
 #define PIN_REF 35  //Pin pro ref napeti
+
+// ---- Bluetooth Gamepad Setup ----
+BleGamepad bleGamepad("Drone Motion Controller", "DIY-Dev", 100);
 
 //---- Kalibrace ---
 float rollOffset = 0;
@@ -112,76 +114,30 @@ int getBatteryLedCount() {
 
   float batRaw = sum / (float)samples;
 
-  float voltage = (batRaw/refRaw)*2.5*VOLT_RATIO;
+  float voltage = (batRaw / refRaw) * 2.5 * VOLT_RATIO;
 
-  int percent = constrain((voltage -3.2 )*100, 0 , 100);
+  int percent = constrain((voltage - 3.2) * 100, 0, 100);
 
   int ledsToLight = 0;
 
   // HYSTEREZE + "plné držení"
   if (percent >= 80) {
     ledsToLight = 5;
-  }
-  else if (percent >= 60) {
+  } else if (percent >= 60) {
     ledsToLight = 4;
-  }
-  else if (percent >= 40) {
+  } else if (percent >= 40) {
     ledsToLight = 3;
-  }
-  else if (percent >= 20) {
+  } else if (percent >= 20) {
     ledsToLight = 2;
-  }
-  else if (percent >= 0) {
+  } else if (percent >= 0) {
     ledsToLight = 1;
-  }
-  else {
+  } else {
     ledsToLight = 0;
   }
 
   return constrain(ledsToLight, 0, ledCount);
 }
 
-/*int getBatteryLedCount() {
-
-  int samples = 1;
-  uint32_t sum = 0;
-
-  for (int i = 0; i < samples; i++) {
-    sum += analogRead(PIN_BAT);
-  }
-
-  float batRaw = sum / (float)samples;
-
-  float vout = (batRaw / 4095.0) * 3.3;
-  float vin = vout * VOLT_RATIO;
-
-  Serial.print("BATTERY: ");
-  Serial.println(vin);
-
-  int ledsToLight = 0;
-
-  // HYSTEREZE + "plné držení"
-  if (vin >= 4.10) {
-    ledsToLight = 5;
-  }
-  else if (vin >= 3.95) {
-    ledsToLight = 4;
-  }
-  else if (vin >= 3.80) {
-    ledsToLight = 3;
-  }
-  else if (vin >= 3.65) {
-    ledsToLight = 2;
-  }
-  else if (vin >= 3.50) {
-    ledsToLight = 1;
-  }
-  else {
-    ledsToLight = 0;
-  }
-
-  return constrain(ledsToLight, 0, ledCount);
-}*/
 
 void showBatteryLeds(int ledsToLight) {
 
@@ -305,7 +261,7 @@ void turnOffLeds() {
 
 // ==============================ESP NOW=============================
 
-void ESPNOW_send(float roll_input, float pitch_input, float yaw_input, float throttle_input, bool a1, bool a2) {
+/*void ESPNOW_send(float roll_input, float pitch_input, float yaw_input, float throttle_input, bool a1, bool a2) {
   message.roll = roll_input;
   message.pitch = pitch_input;
   message.yaw = yaw_input;
@@ -320,13 +276,13 @@ void ESPNOW_send(float roll_input, float pitch_input, float yaw_input, float thr
     Serial.println("Message sent successfully!");
   } else {
     Serial.println("Error sending the message");
-  }*/
-}
+  }/
+}*/
 
-void data_sent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
+/*void data_sent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
   /*Serial.print("Send Status: ");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");*/
-}
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");/
+}*/
 
 // ========================POMOCNY_VYPIS_UDAJU=======================
 void printout_data(float roll_input, float pitch_input, float yaw_input, float throttle_input, bool a1, bool a2) {
@@ -395,6 +351,8 @@ void setup() {
   Serial.println("Inicializace I2C zarizeni...");
   accelgyro.initialize();
 
+  bleGamepad.begin();
+
   Serial.println("Testovani pripojeni...");
   Serial.println(accelgyro.testConnection() ? "MPU6500 pripojen uspesne" : "MPU6500 pripojeni selhalo");
 
@@ -417,23 +375,8 @@ void setup() {
   // AUX2 tlacitko
   pinMode(AUX2Btn.pin, INPUT_PULLUP);
 
-  // ESP NOW
-  WiFi.mode(WIFI_STA);
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
-
-  esp_now_register_send_cb(data_sent);
-
-  esp_now_peer_info_t peerInfo = {};
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;
-  peerInfo.encrypt = false;
-  if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("Failed to add peer");
-    return;
-  }
+  lastTime = micros();
+  Serial.println("Bluetooth Gamepad aktivní! Spáruj mě s PC.");
 }
 
 // ===============================LOOP===============================
@@ -569,7 +512,54 @@ void loop() {
   if (!isEmergency) {
     accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
 
-    float accAngleX = atan2(ay, az) * RADTODEG;
+    if (bleGamepad.isConnected()) {
+
+      // 1. Roll, Pitch (mapování tvých vypočítaných angleX/Y)
+      float roll_input = constrain((angleX - rollOffset) / MAXTILT, -1.0, 1.0);
+      float pitch_input = constrain((angleY - pitchOffset) / MAXTILT, -1.0, 1.0);
+
+      int bleRoll = (roll_input + 1.0) * 16383.5;
+      int blePitch = (pitch_input + 1.0) * 16383.5;
+
+      // Yaw
+      float yaw_rate = gz / 131.0;
+      if (abs(yaw_rate) < 1.0) yaw_rate = 0;
+      yaw_angle += yaw_rate * dt;
+      int bleYaw = (constrain((yaw_angle - yawOffset) / MAXYAWANGLE, -1.0, 1.0) + 1.0) * 16383.5;
+
+      // 2. Throttle (Plyn)
+      int raw = analogRead(POTPIN);
+      float joyRaw = raw / 4095.0;
+      // Použijeme tvůj joyCenter pro lineární plyn 0-100%
+      float mapped_throttle;
+      if (joyRaw >= joyCenter) {
+        mapped_throttle = (joyRaw - joyCenter) / (1.0 - joyCenter);
+      } else {
+        mapped_throttle = 0;  // Pokud je páčka pod středem/v klidu, dej nulu
+      }
+      int bleThrottle = constrain(mapped_throttle * 32737, 0, 32737);
+
+      // 3. Odeslání do PC (Bluetooth)
+      bleGamepad.setAxes(bleRoll, blePitch, bleYaw, 0, 0, bleThrottle, DPAD_CENTERED);
+
+      // 4. AUX tlačítka
+      if (isAUX1) bleGamepad.press(BUTTON_1);
+      else bleGamepad.release(BUTTON_1);
+      if (isAUX2) bleGamepad.press(BUTTON_2);
+      else bleGamepad.release(BUTTON_2);
+    }
+
+    // Původní výpisy a ESP-NOW můžeš smazat nebo zakomentovat:
+    // printout_data(...);
+    // ESPNOW_send(...);
+
+  } else {
+    // V nouzovém režimu pošli nuly
+    if (bleGamepad.isConnected()) {
+      bleGamepad.setAxes(16384, 16384, 16384, 0, 0, 0, DPAD_CENTERED);
+    }
+
+    /*float accAngleX = atan2(ay, az) * RADTODEG;
     float accAngleY = atan2(-ax, sqrt(ay * ay + az * az)) * RADTODEG;
 
     float gx_dps = gx / 131.0;
@@ -608,99 +598,100 @@ void loop() {
     pitch_input = constrain(pitch_input, -1.0, 1.0);
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
-// ---- JOYSTICK THROTTLE (MAPOVÁNÍ -1/1 -> 0/1) ----
-int raw = analogRead(POTPIN);
+    // ---- JOYSTICK THROTTLE (MAPOVÁNÍ -1/1 -> 0/1) ----
+    int raw = analogRead(POTPIN);
 
-// 1. Normalizace surového čtení na rozsah 0.0 až 1.0
-float joyRaw = raw / 4095.0;
+    // 1. Normalizace surového čtení na rozsah 0.0 až 1.0
+    float joyRaw = raw / 4095.0;
 
-// 2. Lehký filtr pro vyhlazení šumu potenciometru
-joy = 0.85 * joy + 0.15 * joyRaw;
+    // 2. Lehký filtr pro vyhlazení šumu potenciometru
+    joy = 0.85 * joy + 0.15 * joyRaw;
 
-// 3. Převod na tvůj rozsah -1.0 až 1.0 (vycházíme z tvé kalibrace středu)
-// joyCenter je hodnota, kterou jsi změřil v setupu (cca 0.32)
-float mapped_input;
-if (joy >= joyCenter) {
-    mapped_input = (joy - joyCenter) / (1.0 - joyCenter); // Horní polovina (0 až 1)
-} else {
-    mapped_input = (joy - joyCenter) / joyCenter;        // Dolní polovina (0 až -1)
-}
+    // 3. Převod na tvůj rozsah -1.0 až 1.0 (vycházíme z tvé kalibrace středu)
+    // joyCenter je hodnota, kterou jsi změřil v setupu (cca 0.32)
+    float mapped_input;
+    if (joy >= joyCenter) {
+      mapped_input = (joy - joyCenter) / (1.0 - joyCenter);  // Horní polovina (0 až 1)
+    } else {
+      mapped_input = (joy - joyCenter) / joyCenter;  // Dolní polovina (0 až -1)
+    }
 
-// 4. MAPOVÁNÍ PRO INAV ALTHOLD (Cíl: 0.0 až 1.0, střed 0.5)
-const float deadzone = 0.005; // Mrtvá zóna kolem fyzického středu
-float final_throttle;
+    // 4. MAPOVÁNÍ PRO INAV ALTHOLD (Cíl: 0.0 až 1.0, střed 0.5)
+    const float deadzone = 0.005;  // Mrtvá zóna kolem fyzického středu
+    float final_throttle;
 
-if (abs(mapped_input) < deadzone) {
-    final_throttle = 0.1;   // PŘESNÝ STŘED = 1500uS v INAV (Držení výšky)
-} else {
-    // Matematický převod: (-1.0 až 1.0) -> (0.0 až 1.0)
-    final_throttle = ((mapped_input + 1.0) / 2.0)*0.2;
-}
+    if (abs(mapped_input) < deadzone) {
+      final_throttle = 0.1;  // PŘESNÝ STŘED = 1500uS v INAV (Držení výšky)
+    } else {
+      // Matematický převod: (-1.0 až 1.0) -> (0.0 až 1.0)
+      final_throttle = ((mapped_input + 1.0) / 2.0) * 0.2;
+    }
 
-// Pojistka rozsahu
-final_throttle = constrain(final_throttle, 0.0, 0.2);
+    // Pojistka rozsahu
+    final_throttle = constrain(final_throttle, 0.0, 0.2);
 
 
     // Vypis
     printout_data(roll_input, pitch_input, yaw_input, final_throttle, isAUX1, isAUX2);
 
     // ESP-NOW
-    ESPNOW_send(roll_input, pitch_input, yaw_input, final_throttle, isAUX1, isAUX2);
+    //ESPNOW_send(roll_input, pitch_input, yaw_input, final_throttle, isAUX1, isAUX2);
 
   } else {
     // Vypis
     printout_data(0, 0, 0, 0.5, isAUX1, isAUX2);
 
     // ESP-NOW
-    ESPNOW_send(0, 0, 0, 0.5, isAUX1, isAUX2);
-  }
+    //ESPNOW_send(0, 0, 0, 0.5, isAUX1, isAUX2);
+  }*/
 
-  // Baterka
-  now = millis();
-  bool batCurrentState = digitalRead(batBtn.pin);
+    // Baterka
+    now = millis();
+    bool batCurrentState = digitalRead(batBtn.pin);
 
-  if (batBtn.lastState == HIGH && batCurrentState == LOW) {
-    if (now - batBtn.lastPush > BUTTON_DELAY) {
+    if (batBtn.lastState == HIGH && batCurrentState == LOW) {
+      if (now - batBtn.lastPush > BUTTON_DELAY) {
 
-      batBtn.lastPush = now;
+        batBtn.lastPush = now;
 
-      // načti baterku jen jednou
-      batteryLedValue = getBatteryLedCount();
+        // načti baterku jen jednou
+        batteryLedValue = getBatteryLedCount();
 
-      // zobrazuj 2 sekundy
-      batBtn.offTime = now + 2000;
-    }
-  }
-  batBtn.lastState = batCurrentState;
-  // ================= LED MANAGEMENT =================
-
-  if (!AUX1Animating && !AUX2Animating) {
-
-    // ---- Emergency blikání ----
-    if (isEmergency) {
-
-      if (now - lastBlinkTime >= blinkInterval) {
-
-        lastBlinkTime = now;
-        blinkState = !blinkState;
-
-        for (int i = 0; i < ledCount; i++) {
-          digitalWrite(ledPins[i], blinkState);
-        }
+        // zobrazuj 2 sekundy
+        batBtn.offTime = now + 2000;
       }
     }
+    batBtn.lastState = batCurrentState;
+    // ================= LED MANAGEMENT =================
 
-    // ---- Indikace baterky ----
-    else if (batBtn.offTime > 0 && now < batBtn.offTime) {
-      showBatteryLeds(batteryLedValue);
-    }
+    if (!AUX1Animating && !AUX2Animating) {
 
-    // ---- Nic nesvítí ----
-    else {
+      // ---- Emergency blikání ----
+      if (isEmergency) {
 
-      turnOffLeds();
-      batBtn.offTime = 0;
+        if (now - lastBlinkTime >= blinkInterval) {
+
+          lastBlinkTime = now;
+          blinkState = !blinkState;
+
+          for (int i = 0; i < ledCount; i++) {
+            digitalWrite(ledPins[i], blinkState);
+          }
+        }
+      }
+
+      // ---- Indikace baterky ----
+      else if (batBtn.offTime > 0 && now < batBtn.offTime) {
+        showBatteryLeds(batteryLedValue);
+      }
+
+      // ---- Nic nesvítí ----
+      else {
+
+        turnOffLeds();
+        batBtn.offTime = 0;
+      }
     }
   }
-  delay(5);
-}
+    delay(5);
+  }
