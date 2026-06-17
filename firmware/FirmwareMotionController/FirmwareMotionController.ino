@@ -56,10 +56,8 @@ struct Button {
 };
 
 Button clbBtn = { 23, 0, HIGH, 0 };  //kalibracni tlacitko
-
 Button batBtn = { 14, 0, HIGH, 0 };
 Button emeBtn = { 27, 0, HIGH, 0 };
-
 Button AUX1Btn = { 19, 0, HIGH, 0 };  // - Žlutý kabel, AUX1 - ARM
 Button AUX2Btn = { 18, 0, HIGH, 0 };  // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
 
@@ -94,9 +92,6 @@ typedef struct struct_message {
 
 struct_message message;
 
-// ---- Pomocne pro vypis ----
-int p = 0;
-
 // =====================TESTOVANI_NAPETI_BATERIE=====================
 
 int getBatteryLedCount() {
@@ -110,11 +105,8 @@ int getBatteryLedCount() {
   }
 
   float batRaw = sum / (float)samples;
-
   float voltage = (batRaw/refRaw)*2.5*VOLT_RATIO;
-
   int percent = constrain((voltage -3.2 )*100, 0 , 100);
-
   int ledsToLight = 0;
 
   // HYSTEREZE + "plné držení"
@@ -182,11 +174,13 @@ int getBatteryLedCount() {
   return constrain(ledsToLight, 0, ledCount);
 }*/
 
+// =====================PRACE_S_LEDKAMI=====================
+
 void showBatteryLeds(int ledsToLight) {
 
   for (int i = 0; i < ledCount; i++) {
 
-    if (i < ledsToLight) {
+    if (i < ledsToLight) {  // LOW je pro zapnutou LED (kvůli čínským soudruhům)
       digitalWrite(ledPins[i], LOW);
     } else {
       digitalWrite(ledPins[i], HIGH);
@@ -329,31 +323,27 @@ void data_sent(const wifi_tx_info_t *info, esp_now_send_status_t status) {
 
 // ========================POMOCNY_VYPIS_UDAJU=======================
 void printout_data(float roll_input, float pitch_input, float yaw_input, float throttle_input, bool a1, bool a2) {
-  p++;
-  if (p == 10) {
-    Serial.print("Roll:\t");
-    Serial.println(roll_input);
-    Serial.print("Pitch:\t");
-    Serial.println(pitch_input);
-    Serial.print("Yaw:\t");
-    Serial.println(yaw_input);
-    //Serial.print("Raw Pontentiometer:\t"); //když tak přidat do formalnich parametru fce
-    //Serial.println(pot_value);
-    Serial.print("Throttle:\t");
-    Serial.println(throttle_input);
-    if (a1) {
-      Serial.print("AUX1 = TRUE\t|\t");
-    } else {
-      Serial.print("AUX1 = FALSE\t|\t");
-    }
-    if (a2) {
-      Serial.println("AUX2 = TRUE");
-    } else {
-      Serial.println("AUX2 = FALSE");
-    }
-    Serial.println("---------------");
-    p = 0;
+  Serial.print("Roll:\t");
+  Serial.println(roll_input);
+  Serial.print("Pitch:\t");
+  Serial.println(pitch_input);
+  Serial.print("Yaw:\t");
+  Serial.println(yaw_input);
+  //Serial.print("Raw Pontentiometer:\t"); //když tak přidat do formalnich parametru fce
+  //Serial.println(pot_value);
+  Serial.print("Throttle:\t");
+  Serial.println(throttle_input);
+  if (a1) {
+    Serial.print("AUX1 = TRUE\t|\t");
+  } else {
+    Serial.print("AUX1 = FALSE\t|\t");
   }
+  if (a2) {
+    Serial.println("AUX2 = TRUE");
+  } else {
+    Serial.println("AUX2 = FALSE");
+  }
+  Serial.println("---------------");
 }
 
 //========================KALIBRACE===================================
@@ -375,6 +365,7 @@ void setup() {
   analogReadResolution(12);        // 0–4095
   analogSetAttenuation(ADC_11db);  // rozsah cca 0–3.3V
 
+  // NUTNÉ V PRAXI POŘÁDNĚ OVĚŘIT
   // kalibrace středu joysticku
   long sum = 0;
   for (int i = 0; i < 50; i++) {
@@ -383,9 +374,6 @@ void setup() {
   }
 
   joyCenter = (sum / 50.0) / 4095.0;
-
-  // Kalibracni tlacitko
-  pinMode(clbBtn.pin, INPUT_PULLUP);
 
   // Akcelerometr a Gyroskop
   Wire.begin(21, 22);  // Inicializace I2C na pinech ESP32
@@ -400,7 +388,6 @@ void setup() {
   lastTime = micros();
 
 
-
   // Baterka
   for (int i = 0; i < ledCount; i++) {
     pinMode(ledPins[i], OUTPUT);
@@ -409,6 +396,9 @@ void setup() {
 
   // emergency button
   pinMode(emeBtn.pin, INPUT_PULLUP);
+
+  // Kalibracni tlacitko
+  pinMode(clbBtn.pin, INPUT_PULLUP);
 
   // AUX1 tlacitko
   pinMode(AUX1Btn.pin, INPUT_PULLUP);
@@ -447,7 +437,6 @@ void loop() {
     if (now - emeBtn.lastPush > BUTTON_DELAY) {
       emeBtn.lastPush = now;
       isEmergency = !isEmergency;
-      p = 0;
 
       if (isEmergency) {
         Serial.print("Spinkám, jsem vystresovaný!!!!");
@@ -607,37 +596,32 @@ void loop() {
     pitch_input = constrain(pitch_input, -1.0, 1.0);
     yaw_input = constrain(yaw_input, -1.0, 1.0);
 
-// ---- JOYSTICK THROTTLE (MAPOVÁNÍ -1/1 -> 0/1) ----
-int raw = analogRead(POTPIN);
+    // ---- JOYSTICK THROTTLE ----
+    int raw = analogRead(POTPIN);
+    float joyRaw = raw / 4095.0;
 
-// 1. Normalizace surového čtení na rozsah 0.0 až 1.0
-float joyRaw = raw / 4095.0;
+    // filtr pro vyhlazení šumu potenciometru
+    joy = 0.85 * joy + 0.15 * joyRaw;
 
-// 2. Lehký filtr pro vyhlazení šumu potenciometru
-joy = 0.85 * joy + 0.15 * joyRaw;
+    float mapped_input;
+    if (joy >= joyCenter) {
+        mapped_input = (joy - joyCenter) / (1.0 - joyCenter); // Horní polovina (0 až 1)
+    } else {
+        mapped_input = (joy - joyCenter) / joyCenter;        // Dolní polovina (0 až -1)
+    }
 
-// 3. Převod na tvůj rozsah -1.0 až 1.0 (vycházíme z tvé kalibrace středu)
-// joyCenter je hodnota, kterou jsi změřil v setupu (cca 0.32)
-float mapped_input;
-if (joy >= joyCenter) {
-    mapped_input = (joy - joyCenter) / (1.0 - joyCenter); // Horní polovina (0 až 1)
-} else {
-    mapped_input = (joy - joyCenter) / joyCenter;        // Dolní polovina (0 až -1)
-}
+    // 4. MAPOVÁNÍ PRO INAV ALTHOLD (Cíl: 0.0 až 1.0, střed 0.5)
+    const float deadzone = 0.005; // Mrtvá zóna kolem fyzického středu
+    float final_throttle;
 
-// 4. MAPOVÁNÍ PRO INAV ALTHOLD (Cíl: 0.0 až 1.0, střed 0.5)
-const float deadzone = 0.005; // Mrtvá zóna kolem fyzického středu
-float final_throttle;
+    if (abs(mapped_input) < deadzone) {
+        final_throttle = 0.1;   // PŘESNÝ STŘED = 1500uS v INAV (Držení výšky) (V TESTOVACIM MODU, ZATIM NEDOKONCENO)
+    } else {
+        // (-1.0 až 1.0) -> (0.0 až 1.0)
+        final_throttle = ((mapped_input + 1.0) / 2.0)*0.2;
+    }
 
-if (abs(mapped_input) < deadzone) {
-    final_throttle = 0.1;   // PŘESNÝ STŘED = 1500uS v INAV (Držení výšky)
-} else {
-    // Matematický převod: (-1.0 až 1.0) -> (0.0 až 1.0)
-    final_throttle = ((mapped_input + 1.0) / 2.0)*0.2;
-}
-
-// Pojistka rozsahu
-final_throttle = constrain(final_throttle, 0.0, 0.2);
+    final_throttle = constrain(final_throttle, 0.0, 0.2);
 
 
     // Vypis
@@ -660,26 +644,20 @@ final_throttle = constrain(final_throttle, 0.0, 0.2);
 
   if (batBtn.lastState == HIGH && batCurrentState == LOW) {
     if (now - batBtn.lastPush > BUTTON_DELAY) {
-
       batBtn.lastPush = now;
-
-      // načti baterku jen jednou
       batteryLedValue = getBatteryLedCount();
-
-      // zobrazuj 2 sekundy
       batBtn.offTime = now + 2000;
     }
   }
   batBtn.lastState = batCurrentState;
-  // ================= LED MANAGEMENT =================
 
+
+  // ================= LED MANAGEMENT =================
   if (!AUX1Animating && !AUX2Animating) {
 
     // ---- Emergency blikání ----
     if (isEmergency) {
-
       if (now - lastBlinkTime >= blinkInterval) {
-
         lastBlinkTime = now;
         blinkState = !blinkState;
 

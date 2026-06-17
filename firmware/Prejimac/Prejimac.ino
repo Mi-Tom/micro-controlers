@@ -96,9 +96,7 @@ void setup() {
 
 void loop() {
   float t = millis() / 1000.0;
-
-  // --- TADY SI NASTAVUJ HODNOTY (Jednoduché a přehledné) ---
-
+  
   Serial.println("Data received:");
   Serial.print("Roll: ");
   Serial.println(message.roll);
