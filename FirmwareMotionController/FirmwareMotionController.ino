@@ -1,6 +1,6 @@
-#include "I2Cdev.h"
-#include "MPU6050.h"
-#include "Wire.h"
+#include <I2Cdev.h>
+#include <MPU6050.h>
+#include <Wire.h>
 #include <esp_now.h>
 #include <WiFi.h>
 
@@ -28,10 +28,10 @@ unsigned long lastTime;
 float angleX = 0;
 float angleY = 0;
 float yaw_input_prev = 0.0;
-static float yaw_angle = 0;
+float yaw_angle = 0;
 
 //---- Baterka ----
-const float R1 = 22000.0;  //100K
+const float R1 = 22000.0;  //22K
 const float R2 = 22000.0;
 const float VOLT_RATIO = (R1 + R2) / R2;
 
@@ -41,6 +41,7 @@ const float JOY_DEADZONE = 0.02;  // mrtvá zóna kolem středu
 float joy = 0;
 float joyCenter = 0;
 
+// ---- LED -----
 int ledPins[] = { 13, 12, 15, 2, 4 };  // Jde od cervene po zelenou
 int ledCount = 5;
 
@@ -62,9 +63,6 @@ Button emeBtn = { 27, 0, HIGH, 0 };
 Button AUX1Btn = { 19, 0, HIGH, 0 };  // - Žlutý kabel, AUX1 - ARM
 Button AUX2Btn = { 18, 0, HIGH, 0 };  // - Zelený kabel, AUX2 - ALTHOLD/ANGLE
 
-//---- Emergency mod ----
-bool isEmergency = false;
-
 // ---- Emergency blink ----
 unsigned long lastBlinkTime = 0;
 bool blinkState = false;
@@ -74,7 +72,8 @@ const int blinkInterval = 300;
 bool AUX1Animating = false;
 bool AUX2Animating = false;
 
-//---- Emergency mod ----
+//---- Emergency mod ---- // hodnoty AUX se budou měnit, podle fci v Inavu
+bool isEmergency = false;
 bool isAUX1 = false;
 bool isAUX2 = true;
 
